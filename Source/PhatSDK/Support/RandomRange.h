@@ -9,26 +9,6 @@ enum eRandomFormula
 	equalDistribution,
 };
 
-struct IntRange
-{
-	int Min;
-	int Max;
-	float Weight;
-
-	IntRange(int min, int max, float weight)
-	{
-		Min = min;
-		Max = max;
-		Weight = weight;
-	}
-
-	IntRange(int value, float weight)
-	{
-		Min = value;
-		Max = value;
-		Weight = weight;
-	}
-};
 
 void testRandomValueGenerator();
 
@@ -49,5 +29,3 @@ double getRandomDouble(double maxInclusive);
 double getRandomDouble(double maxInclusive, eRandomFormula formula, double favorStrength, double favorModifier, double favorSpecificValue = 0);
 double getRandomDouble(double minInclusive, double maxInclusive);
 double getRandomDouble(double minInclusive, double maxInclusive, eRandomFormula formula, double favorStrength, double favorModifier, double favorSpecificValue = 0);
-
-int GetRandomNumberFromRange(std::vector<IntRange> ranges);
