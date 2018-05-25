@@ -44,19 +44,44 @@ void testRandomValueGenerator()
 
 int getRandomNumberWithFavoredValue(int minInclusive, int maxInclusive, double favorValue, double favorStrength)
 {
+	//-----Merged from GDLE2 https://gitlab.com/Scribble/gdlenhanced/commit/8e41110b5c1db340b70acfd30a94a5ffecc2fcda ------//
+	// Okay, so here goes nothing!
+	// 1/a^abs(x-m) is a function that grows exponentially towards m either side of it on the x-axis
+	// where a = 1 + favorStrength^2/(maxInclusive-minInclusive)
+	// we want to randomly sample a random number in the area of this function to get a biased value
+	// between n and m (n<m), the area is a^(n-m)/log(a)
+	// between m and n (n>m), the area is (2-a^m-n)/log(a) where m is the favorValue
+
 	int numValues = (maxInclusive - minInclusive) + 1;
-	float maxWeight = (numValues) * 1000;
 
-	std::vector<IntRange> ranges;
+	double a = 1 + pow(favorStrength, 2) / numValues;
+	double logA = log(a);
 
-	int value = minInclusive;
-	for (int i = 0; i < numValues; i++)
+	// we assume that each point has a width of 1 (+-0.5)
+	// so we pick a random number between the area left of (minInclusive-0.5) so:
+	double minArea = pow(a, (minInclusive - 0.5) - favorValue) / logA;
+	// and the area left of (maxInclusive+0.5)
+	double totArea = (2 - pow(a, favorValue - (maxInclusive + 0.5))) / logA - minArea;
+	// here goes...
+	double r = (rand() / (long double)RAND_MAX) * totArea + minArea;
+
+	// the area at n=m is a^(n-m)/log(a) = a^0/log(a) = 1/log(a)
+	if (r < 1 / logA)
 	{
-		ranges.push_back(IntRange(value, maxWeight / (float)pow(1 + ((pow(favorStrength, 2) / numValues)), abs(favorValue - value))));
-		value++;
+		// Now we just have to reaarange the equation for n
+		// so n such that a^(n-m)/log(a) = r our randomly picked area
+		return min(max(minInclusive, round(log(r*logA) / logA + favorValue)), maxInclusive);
+	}
+	else
+
+	{
+		// similarly,
+		// n such that (2 - a^(m-n))/log(a) = r
+		return min(max(minInclusive, round(favorValue - log(2 - r * logA) / logA)), maxInclusive);
+
 	}
 
-	return GetRandomNumberFromRange(ranges);
+	// the equations chosen are simply what was here before, but calculated with a bit more elegance...
 }
 
 int getRandomNumberExclusive(int maxExclusive)
@@ -174,35 +199,4 @@ double getRandomDouble(double minInclusive, double maxInclusive, eRandomFormula 
 	returnValue = max(returnValue, minInclusive);
 
 	return returnValue;
-}
-
-int GetRandomNumberFromRange(std::vector<IntRange> ranges)
-{
-	if (ranges.size() == 1)
-		return rng.Next(ranges[0].Min, ranges[0].Max);
-
-	float total = 0.f;
-	for (int i = 0; i < ranges.size(); i++)
-		total += ranges[i].Weight;
-
-	float r = rng.NextDouble();
-	float s = 0.f;
-
-	int cnt = (int)ranges.size() - 1;
-	for (int i = 0; i < cnt; i++)
-	{
-		s += ranges[i].Weight / total;
-		if (s >= r)
-		{
-			if (ranges[i].Min == ranges[i].Max)
-				return ranges[i].Min;
-			else
-				return rng.Next(ranges[i].Min, ranges[i].Max);
-		}
-	}
-
-	if (ranges[cnt].Min == ranges[cnt].Max)
-		return ranges[cnt].Min;
-	else
-		return rng.Next(ranges[cnt].Min, ranges[cnt].Max);
 }

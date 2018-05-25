@@ -26,7 +26,7 @@ public:
 	~CPlayerWeenie();
 
 	virtual void Tick() override;
-
+	
 	virtual class CPlayerWeenie *AsPlayer() { return this; }
 
 	virtual bool IsAdvocate() override;
@@ -41,7 +41,7 @@ public:
 	virtual void OnDeathAnimComplete() override;
 	virtual void OnDeath(DWORD killer_id) override;
 	virtual void OnMotionDone(DWORD motion, BOOL success) override;
-
+	
 	virtual void NotifyAttackerEvent(const char *name, unsigned int dmgType, float healthPercent, unsigned int heath, unsigned int crit, unsigned int attackConditions);
 	virtual void NotifyDefenderEvent(const char *name, unsigned int dmgType, float healthPercent, unsigned int health, BODY_PART_ENUM hitPart, unsigned int crit, unsigned int attackConditions);
 	virtual void NotifyKillerEvent(const char *text);
@@ -53,16 +53,18 @@ public:
 	virtual void NotifyWeenieError(int error) override;
 	virtual void NotifyWeenieErrorWithString(int error, const char *text) override;
 	virtual void NotifyInventoryFailedEvent(DWORD object_id, int error) override;
-
+	
 	CWeenieObject *m_pCraftingTool;
 	CWeenieObject *m_pCraftingTarget;
 
 	virtual int UseEx(CWeenieObject *pTool, CWeenieObject *pTarget);
 	virtual int UseEx(bool bConfirmed = false);
+
 	virtual bool CheckUseRequirements(int index, CCraftOperation *op, CWeenieObject *pTool, CWeenieObject *pTarget);
 	virtual void PerformUseModifications(int index, CCraftOperation *op, CWeenieObject *pTool, CWeenieObject *pTarget, CWeenieObject *pCreatedItem);
 	virtual void PerformUseModificationScript(DWORD scriptId, CCraftOperation *op, CWeenieObject *pTool, CWeenieObject *pTarget, CWeenieObject *pCreatedItem);
 	virtual int CPlayerWeenie::GetMaterialMod(int material);
+
 	void PerformSalvaging(DWORD toolId, PackableList<DWORD> items);
 	DWORD MaterialToSalvageBagId(MaterialType material);
 	bool SpawnSalvageBagInContainer(MaterialType material, int amount, int workmanship, int value, int numItems);
@@ -97,7 +99,7 @@ public:
 	virtual void SendNetMessage(BinaryWriter *_food, WORD _group, BOOL _event = 0, BOOL del = 1) override;
 	virtual void ExitPortal();
 	virtual void LoginCharacter();
-
+	
 	virtual bool IsDead() override;
 
 	virtual DWORD OnReceiveInventoryItem(CWeenieObject *source, CWeenieObject *item, DWORD desired_slot) override;
@@ -109,7 +111,7 @@ public:
 	CClient *GetClient() { return m_pClient; }
 
 	DWORD m_LastAssessed;
-
+	
 	DWORD GetCharacterOptions() { return _playerModule.options_; }
 	DWORD GetCharacterOptions2() { return _playerModule.options2_; }
 
@@ -129,7 +131,7 @@ public:
 	// DWORD m_CharacterOptions2 = 0x00948700 | DisplayNumberDeaths_CharacterOptions2;
 
 	bool ShouldRepeatAttacks() { return GetCharacterOptions() & AutoRepeatAttack_CharacterOption ? true : false; }
-
+	
 	bool ShareFellowshipXP() { return GetCharacterOptions() & FellowshipShareXP_CharacterOption ? true : false; }
 	bool ShareFellowshipLoot() { return GetCharacterOptions() & FellowshipShareLoot_CharacterOption ? true : false; }
 
@@ -171,7 +173,7 @@ public:
 	virtual void UpdateVitaeEnchantment();
 
 	virtual void BeginLogout() override;
-
+	
 	bool IsLoggingOut() { return _logoutTime >= 0.0; }
 	bool IsRecalling() { return _recallTime >= 0.0; }
 	void BeginRecall(const Position &targetPos);
@@ -183,7 +185,7 @@ public:
 	DWORD GetAccountHouseId();
 
 protected:
-	CClient * m_pClient;
+	CClient *m_pClient;
 
 	double m_fNextMakeAwareCacheFlush = 0.0;
 	bool m_bAttackable = true;
@@ -243,4 +245,5 @@ public:
 	virtual void OnReadyToUse() override;
 	virtual void OnUseAnimSuccess(DWORD motion) override;
 };
+
 
