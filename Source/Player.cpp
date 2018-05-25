@@ -131,7 +131,7 @@ int CPlayerWeenie::GetAccessLevel()
 {
 	if (!m_pClient)
 		return BASIC_ACCESS;
-	
+
 	return m_pClient->GetAccessLevel();
 }
 
@@ -298,7 +298,7 @@ void CPlayerWeenie::MakeAware(CWeenieObject *pEntity, bool bForceUpdate)
 		{
 			MakeAware(item);
 		}
-		
+
 		for (auto item : m_Packs)
 		{
 			MakeAware(item);
@@ -454,7 +454,7 @@ void CPlayerWeenie::OnGivenXP(long long amount, bool allegianceXP)
 	if (m_Qualities.GetVitaeValue() < 1.0 && !allegianceXP)
 	{
 		DWORD64 vitae_pool = InqIntQuality(VITAE_CP_POOL_INT, 0) + min(amount, 1000000000);
-		float new_vitae = 1.0;		
+		float new_vitae = 1.0;
 		bool has_new_vitae = VitaeSystem::DetermineNewVitaeLevel(m_Qualities.GetVitaeValue(), InqIntQuality(DEATH_LEVEL_INT, 1), &vitae_pool, &new_vitae);
 
 		UpdateVitaePool(vitae_pool);
@@ -518,20 +518,20 @@ void CPlayerWeenie::CalculateAndDropDeathItems(CCorpseWeenie *pCorpse)
 			removeList.push_back(wielded);
 		else if (wielded->IsDroppedOnDeath())
 			alwaysDropList.push_back(wielded);
-		else if(!wielded->IsBonded())
+		else if (!wielded->IsBonded())
 			allValidItems.push_back(wielded);
 	}
 
 	for (auto item : m_Items)
 	{
-		if(item->m_Qualities.id == W_COINSTACK_CLASS)
+		if (item->m_Qualities.id == W_COINSTACK_CLASS)
 			continue;
 		else if (item->IsDestroyedOnDeath())
 			removeList.push_back(item);
 		else if (item->IsDroppedOnDeath())
 			alwaysDropList.push_back(item);
 		else if (!item->IsBonded())
-			allValidItems.push_back(item);	
+			allValidItems.push_back(item);
 	}
 
 	for (auto packAsWeenie : m_Packs)
@@ -584,7 +584,7 @@ void CPlayerWeenie::CalculateAndDropDeathItems(CCorpseWeenie *pCorpse)
 				auto entry = (*typeMap->rbegin());
 				int modifiedValue = entry.first;
 				int categoryCount = itemDropCountByCategory[entry.second->InqType()];
-				if(categoryCount > 0)
+				if (categoryCount > 0)
 					modifiedValue = round((double)modifiedValue / (double)(categoryCount + 1) * Random::GenFloat(0.9, 1.1));
 				if (modifiedValue > highestValue)
 				{
@@ -611,7 +611,7 @@ void CPlayerWeenie::CalculateAndDropDeathItems(CCorpseWeenie *pCorpse)
 			itemsLost++;
 			itemDropCountByCategory[itemToDrop->InqType()]++;
 
-			if(amountOfItemsToDrop > 1 && i == amountOfItemsToDrop - 1)
+			if (amountOfItemsToDrop > 1 && i == amountOfItemsToDrop - 1)
 				itemsLostText.append(" and your ");
 			else if (!itemsLostText.empty())
 				itemsLostText.append(", your ");
@@ -640,15 +640,15 @@ void CPlayerWeenie::CalculateAndDropDeathItems(CCorpseWeenie *pCorpse)
 
 	if (!itemsLostText.empty())
 	{
-		if(coinConsumed && itemsLost > 1)
+		if (coinConsumed && itemsLost > 1)
 			text.append(", ");
-		else if(coinConsumed)
+		else if (coinConsumed)
 			text.append(" and ");
 		text.append(itemsLostText);
 	}
 	text.append("!");
 
-	if(coinConsumed || itemsLost)
+	if (coinConsumed || itemsLost)
 		SendText(text.c_str(), LTT_DEFAULT);
 
 	if (_pendingCorpse) //Absorbed from GDLE2 
@@ -669,7 +669,7 @@ void CPlayerWeenie::OnDeath(DWORD killer_id)
 
 	m_bReviveAfterAnim = true;
 	CMonsterWeenie::OnDeath(killer_id);
-	
+
 	m_Qualities.SetFloat(DEATH_TIMESTAMP_FLOAT, Timer::cur_time);
 	NotifyFloatStatUpdated(DEATH_TIMESTAMP_FLOAT);
 
@@ -846,8 +846,8 @@ bool CPlayerWeenie::ImmuneToDamage(CWeenieObject *other)
 			}
 			else
 			{
-				PKStatusEnum selfStatus = (PKStatusEnum) InqIntQuality(PLAYER_KILLER_STATUS_INT, PKStatusEnum::Undef_PKStatus);
-				PKStatusEnum otherStatus = (PKStatusEnum) other->InqIntQuality(PLAYER_KILLER_STATUS_INT, PKStatusEnum::Undef_PKStatus);
+				PKStatusEnum selfStatus = (PKStatusEnum)InqIntQuality(PLAYER_KILLER_STATUS_INT, PKStatusEnum::Undef_PKStatus);
+				PKStatusEnum otherStatus = (PKStatusEnum)other->InqIntQuality(PLAYER_KILLER_STATUS_INT, PKStatusEnum::Undef_PKStatus);
 
 				if (selfStatus == PKStatusEnum::Baelzharon_PKStatus || otherStatus == PKStatusEnum::Baelzharon_PKStatus)
 				{
@@ -885,55 +885,55 @@ DWORD CPlayerWeenie::OnReceiveInventoryItem(CWeenieObject *source, CWeenieObject
 /*
 void CPlayerWeenie::HandleKilledEvent(CWeenieObject *victim, DAMAGE_TYPE damageType)
 {
-	switch (damageType)
-	{
-	case BLUDGEON_DAMAGE_TYPE:
-		{
-			switch (Random::GenInt(0, 7))
-			{
-			case 0:
-				{
-					NotifyKillerEvent(csprintf("You flatten %s's body with the force of your assault!", pTarget->GetName().c_str()));
-					break;
-				}
-			case 1:
-				{
-					NotifyKillerEvent(csprintf("You beat %s to a lifeless pulp!", pTarget->GetName().c_str()));
-					break;
-				}
-			case 2:
-				{
-					NotifyKillerEvent(csprintf("You smite %s mightily!", pTarget->GetName().c_str()));
-					break;
-				}
-			case 3:
-				{
-					NotifyKillerEvent(csprintf("You knock %s into next Morningthaw!", pTarget->GetName().c_str()));
-					break;
-				}
-			case 4:
-				{
-					NotifyKillerEvent(csprintf("%s is utterly destroyed by your attack!", pTarget->GetName().c_str()));
-					break;
-				}
-			case 5:
-				{
-					NotifyKillerEvent(csprintf("%s catches your attack, with dire consequences!", pTarget->GetName().c_str()));
-					break;
-				}
-			case 6:
-				{
-					NotifyKillerEvent(csprintf("The deadly force of your attack is so strong that %s's ancestors feel it!", pTarget->GetName().c_str()));
-					break;
-				}
-			case 7:
-				{
-					NotifyKillerEvent(csprintf("The thunder of crushing %s is followed by the deafening silence of death!", pTarget->GetName().c_str()));
-					break;
-				}
-			}
-		}
-	}
+switch (damageType)
+{
+case BLUDGEON_DAMAGE_TYPE:
+{
+switch (Random::GenInt(0, 7))
+{
+case 0:
+{
+NotifyKillerEvent(csprintf("You flatten %s's body with the force of your assault!", pTarget->GetName().c_str()));
+break;
+}
+case 1:
+{
+NotifyKillerEvent(csprintf("You beat %s to a lifeless pulp!", pTarget->GetName().c_str()));
+break;
+}
+case 2:
+{
+NotifyKillerEvent(csprintf("You smite %s mightily!", pTarget->GetName().c_str()));
+break;
+}
+case 3:
+{
+NotifyKillerEvent(csprintf("You knock %s into next Morningthaw!", pTarget->GetName().c_str()));
+break;
+}
+case 4:
+{
+NotifyKillerEvent(csprintf("%s is utterly destroyed by your attack!", pTarget->GetName().c_str()));
+break;
+}
+case 5:
+{
+NotifyKillerEvent(csprintf("%s catches your attack, with dire consequences!", pTarget->GetName().c_str()));
+break;
+}
+case 6:
+{
+NotifyKillerEvent(csprintf("The deadly force of your attack is so strong that %s's ancestors feel it!", pTarget->GetName().c_str()));
+break;
+}
+case 7:
+{
+NotifyKillerEvent(csprintf("The thunder of crushing %s is followed by the deafening silence of death!", pTarget->GetName().c_str()));
+break;
+}
+}
+}
+}
 }
 */
 
@@ -945,56 +945,56 @@ void CPlayerWeenie::NotifyVictimEvent(CWeenieObject *killer, DAMAGE_TYPE damageT
 
 void CPlayerWeenie::OnDealtDamage(CWeenieObject *attacker, DAMAGE_TYPE damageType, unsigned int damage)
 {
-	if (!pTarget->IsDead())
-	{
-		NotifyAttackerEvent(pTarget->GetName().c_str(), 4, damageDone / (double)(pTarget->GetMaxHealth()), damageDone, 0, 0);
-	}
-	else
-	{
-		switch (Random::GenInt(0, 7))
-		{
-		case 0:
-			{
-				NotifyKillerEvent(csprintf("You flatten %s's body with the force of your assault!", pTarget->GetName().c_str()));
-				break;
-			}
-		case 1:
-			{
-				NotifyKillerEvent(csprintf("You beat %s to a lifeless pulp!", pTarget->GetName().c_str()));
-				break;
-			}
-		case 2:
-			{
-				NotifyKillerEvent(csprintf("You smite %s mightily!", pTarget->GetName().c_str()));
-				break;
-			}
-		case 3:
-			{
-				NotifyKillerEvent(csprintf("You knock %s into next Morningthaw!", pTarget->GetName().c_str()));
-				break;
-			}
-		case 4:
-			{
-				NotifyKillerEvent(csprintf("%s is utterly destroyed by your attack!", pTarget->GetName().c_str()));
-				break;
-			}
-		case 5:
-			{
-				NotifyKillerEvent(csprintf("%s catches your attack, with dire consequences!", pTarget->GetName().c_str()));
-				break;
-			}
-		case 6:
-			{
-				NotifyKillerEvent(csprintf("The deadly force of your attack is so strong that %s's ancestors feel it!", pTarget->GetName().c_str()));
-				break;
-			}
-		case 7:
-			{
-				NotifyKillerEvent(csprintf("The thunder of crushing %s is followed by the deafening silence of death!", pTarget->GetName().c_str()));
-				break;
-			}
-		}
-	}
+if (!pTarget->IsDead())
+{
+NotifyAttackerEvent(pTarget->GetName().c_str(), 4, damageDone / (double)(pTarget->GetMaxHealth()), damageDone, 0, 0);
+}
+else
+{
+switch (Random::GenInt(0, 7))
+{
+case 0:
+{
+NotifyKillerEvent(csprintf("You flatten %s's body with the force of your assault!", pTarget->GetName().c_str()));
+break;
+}
+case 1:
+{
+NotifyKillerEvent(csprintf("You beat %s to a lifeless pulp!", pTarget->GetName().c_str()));
+break;
+}
+case 2:
+{
+NotifyKillerEvent(csprintf("You smite %s mightily!", pTarget->GetName().c_str()));
+break;
+}
+case 3:
+{
+NotifyKillerEvent(csprintf("You knock %s into next Morningthaw!", pTarget->GetName().c_str()));
+break;
+}
+case 4:
+{
+NotifyKillerEvent(csprintf("%s is utterly destroyed by your attack!", pTarget->GetName().c_str()));
+break;
+}
+case 5:
+{
+NotifyKillerEvent(csprintf("%s catches your attack, with dire consequences!", pTarget->GetName().c_str()));
+break;
+}
+case 6:
+{
+NotifyKillerEvent(csprintf("The deadly force of your attack is so strong that %s's ancestors feel it!", pTarget->GetName().c_str()));
+break;
+}
+case 7:
+{
+NotifyKillerEvent(csprintf("The thunder of crushing %s is followed by the deafening silence of death!", pTarget->GetName().c_str()));
+break;
+}
+}
+}
 }
 */
 
@@ -1003,14 +1003,14 @@ void CPlayerWeenie::PreSpawnCreate()
 }
 
 struct CompareManaNeeds : public std::binary_function<CWeenieObject*, CWeenieObject*, bool>
-	{
+{
 	bool operator()(CWeenieObject* left, CWeenieObject* right)
-		 {
-				// comparator for making a min-heap based on remaining mana
-			return ((left->InqIntQuality(ITEM_MAX_MANA_INT, 0, TRUE) - left->InqIntQuality(ITEM_CUR_MANA_INT, -1, TRUE))
-				 > (right->InqIntQuality(ITEM_MAX_MANA_INT, 0, TRUE) - right->InqIntQuality(ITEM_CUR_MANA_INT, -1, TRUE)));
-		}
-	};
+	{
+		// comparator for making a min-heap based on remaining mana
+		return ((left->InqIntQuality(ITEM_MAX_MANA_INT, 0, TRUE) - left->InqIntQuality(ITEM_CUR_MANA_INT, -1, TRUE))
+	> (right->InqIntQuality(ITEM_MAX_MANA_INT, 0, TRUE) - right->InqIntQuality(ITEM_CUR_MANA_INT, -1, TRUE)));
+	}
+};
 
 
 int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
@@ -1021,10 +1021,10 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 	{
 	case TYPE_MANASTONE:
 	{
-				// Merged changes from https://gitlab.com/fourk/gdlenhanced/tree/use_mana_stones_on_self
-				// TODO: move this logic to ManaStone.cpp
+		// Merged changes from https://gitlab.com/fourk/gdlenhanced/tree/use_mana_stones_on_self
+		// TODO: move this logic to ManaStone.cpp
 		int targetType = pTarget->InqIntQuality(ITEM_TYPE_INT, 0);
-		if (!(targetType & TYPE_ITEM) && !(targetType & TYPE_CREATURE)) 
+		if (!(targetType & TYPE_ITEM) && !(targetType & TYPE_CREATURE))
 		{
 
 			SendText(csprintf("That's not a valid target for the %s", pTool->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
@@ -1038,16 +1038,16 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 		int targetCurrentMana = pTarget->InqIntQuality(ITEM_CUR_MANA_INT, -1, TRUE);
 		int targetMaxMana = pTarget->InqIntQuality(ITEM_MAX_MANA_INT, -1, TRUE);
 
-		if (manaStoneCurrentMana <= 0) 
+		if (manaStoneCurrentMana <= 0)
 		{
-			if (targetType &TYPE_CREATURE) 
+			if (targetType &TYPE_CREATURE)
 			{
-								//player attempting to use an uncharged mana stone on themselves...what do we do
-					SendText("Despite your best efforts, you fail to destroy yourself.", LTT_DEFAULT); // TODO: better text
+				//player attempting to use an uncharged mana stone on themselves...what do we do
+				SendText("Despite your best efforts, you fail to destroy yourself.", LTT_DEFAULT); // TODO: better text
 				break;
-				
+
 			}
-			if (targetMaxMana <= 0) 
+			if (targetMaxMana <= 0)
 			{
 				SendText(csprintf("The %s has no mana to drain.", pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 				break;
@@ -1060,25 +1060,25 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				pTool->NotifyIntStatUpdated(UI_EFFECTS_INT, false);
 				pTarget->Remove();
 				RecalculateEncumbrance();
-				
-									// The Mana Stone drains 4,434 points of mana from the Pocket Watch.
-									// The Pocket Watch is destroyed.
-					SendText(csprintf("The %s drains %s points of mana from the %s.\nThe %s is destroyed.", pTool->GetName().c_str(), FormatNumberString(drainedMana).c_str(), pTarget->GetName().c_str(), pTarget->GetName().c_str()), LTT_DEFAULT);
-				
+
+				// The Mana Stone drains 4,434 points of mana from the Pocket Watch.
+				// The Pocket Watch is destroyed.
+				SendText(csprintf("The %s drains %s points of mana from the %s.\nThe %s is destroyed.", pTool->GetName().c_str(), FormatNumberString(drainedMana).c_str(), pTarget->GetName().c_str(), pTarget->GetName().c_str()), LTT_DEFAULT);
+
 			}
 			else {
 				SendText("Retained items can't be drained.", LTT_DEFAULT); //todo: made up message, confirm if it's correct
 				break;
-				
+
 			}
-			
+
 		}
 		else { // mana stone is being emptied, not filled
 			int remainingMana;
 			if (targetType & TYPE_CREATURE) { // manastone being emptied into the user
 				if (pTarget->id != id) {
-										// somehow not using on self. shouldn't be possible with the client. Made up message.
-						SendText(csprintf("You cannot use the %s on other creatures or players.", pTool->GetName().c_str()), LTT_DEFAULT);
+					// somehow not using on self. shouldn't be possible with the client. Made up message.
+					SendText(csprintf("You cannot use the %s on other creatures or players.", pTool->GetName().c_str()), LTT_DEFAULT);
 					break;
 				}
 				priority_queue<CWeenieObject*, vector<CWeenieObject*>, CompareManaNeeds > itemsNeedingMana, itemsStillNeedingMana; // MIN heaps sorted by mana deficit
@@ -1089,9 +1089,9 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 					unsigned int deficit = maxMana - curMana;
 					if (deficit > 0) {
 						itemsNeedingMana.push(wielded);
-						
+
 					}
-					
+
 				}
 				if (itemsNeedingMana.empty()) {
 					SendText("None of your items need mana", LTT_DEFAULT); // What's the correct text?
@@ -1111,44 +1111,44 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 					if (deficit * itemsNeedingMana.size() >= manaToDistribute) {
 						manaToApplyToEach = manaToDistribute / itemsNeedingMana.size();
 						overflowManaToApply = manaToDistribute % itemsNeedingMana.size();
-						
+
 					}
 					else {
 						manaToApplyToEach = deficit;
-						
+
 					}
 					while (!itemsNeedingMana.empty()) {
 						CWeenieObject * item = itemsNeedingMana.top();
 						int itemMaxMana = item->InqIntQuality(ITEM_MAX_MANA_INT, 0, TRUE);
 						itemsNeedingMana.pop();
-						
-							int newManaAmount = item->InqIntQuality(ITEM_CUR_MANA_INT, 0, TRUE) + manaToApplyToEach;
+
+						int newManaAmount = item->InqIntQuality(ITEM_CUR_MANA_INT, 0, TRUE) + manaToApplyToEach;
 						manaToDistribute -= manaToApplyToEach;
 						manaDistributed += manaToApplyToEach;
-						
-							if (overflowManaToApply > 0) {
+
+						if (overflowManaToApply > 0) {
 							newManaAmount += overflowManaToApply;
 							manaToDistribute -= overflowManaToApply;
 							manaDistributed += overflowManaToApply;
 							overflowManaToApply = 0;
 							objectsReceivingMana.insert(item);
-							
+
 						}
 
-							if (newManaAmount < itemMaxMana) {
-								itemsStillNeedingMana.push(item);
-								
-							}
-							if (manaToApplyToEach > 0) { // handle case when you use a stone that doesn't even have enough mana to give 1 to each deficit item
-								objectsReceivingMana.insert(item);
-								
-							}
-							item->m_Qualities.SetInt(ITEM_CUR_MANA_INT, newManaAmount);
-							item->NotifyIntStatUpdated(ITEM_CUR_MANA_INT, false); // todo: is second positional arg correct?
-							
+						if (newManaAmount < itemMaxMana) {
+							itemsStillNeedingMana.push(item);
+
+						}
+						if (manaToApplyToEach > 0) { // handle case when you use a stone that doesn't even have enough mana to give 1 to each deficit item
+							objectsReceivingMana.insert(item);
+
+						}
+						item->m_Qualities.SetInt(ITEM_CUR_MANA_INT, newManaAmount);
+						item->NotifyIntStatUpdated(ITEM_CUR_MANA_INT, false); // todo: is second positional arg correct?
+
 					}
 					itemsNeedingMana.swap(itemsStillNeedingMana);
-					
+
 				}
 				remainingMana = manaToDistribute;
 				std::stringstream ss;
@@ -1157,28 +1157,28 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				while (it != objectsReceivingMana.end()) {
 					if (it != objectsReceivingMana.begin()) {
 						ss << ", ";
-						
+
 					}
 					CWeenieObject * item = *it;
 					ss << item->GetName();
 					it++;
-					
+
 				}
 				SendText(ss.str().c_str(), LTT_DEFAULT);
 				int remainingDeficit = 0;
 				while (!itemsNeedingMana.empty()) {
 					remainingDeficit += (itemsNeedingMana.top()->InqIntQuality(ITEM_MAX_MANA_INT, 0, TRUE) - itemsNeedingMana.top()->InqIntQuality(ITEM_CUR_MANA_INT, 0, TRUE));
 					itemsNeedingMana.pop();
-					
+
 				}
 				if (remainingDeficit == 0) {
 					SendText("Your items are fully charged.", LTT_DEFAULT);
 				}
 				else {
 					SendText(csprintf("You need %s more mana to fully charge your items.", FormatNumberString(remainingDeficit).c_str()), LTT_DEFAULT);
-					
+
 				}
-				
+
 			}
 			else { // manastone being emptied into an item
 
@@ -1186,10 +1186,10 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				{
 					SendText(csprintf("The %s does not require mana.", pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 					break;
-					
+
 				}
 				else if (targetCurrentMana >= targetMaxMana)
-					 {
+				{
 					SendText(csprintf("The %s is already fully charged.", pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 					break;
 				}
@@ -1201,44 +1201,44 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 					{
 						pTarget->m_Qualities.SetInt(ITEM_CUR_MANA_INT, targetMaxMana);
 						pTarget->NotifyIntStatUpdated(ITEM_CUR_MANA_INT, false);
-						
-							remainingMana = manaStoneCurrentMana - manaNeeded;
-						
-							SendText(csprintf("The %s gives %s mana to the %s.", pTool->GetName().c_str(), FormatNumberString(manaNeeded).c_str(), pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
+
+						remainingMana = manaStoneCurrentMana - manaNeeded;
+
+						SendText(csprintf("The %s gives %s mana to the %s.", pTool->GetName().c_str(), FormatNumberString(manaNeeded).c_str(), pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 						SendText(csprintf("The %s is fully charged.", pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
-						
+
 					}
 					else
-						 {
+					{
 						int newManaAmount = targetCurrentMana + manaStoneCurrentMana;
 						int manaStillNeeded = targetMaxMana - newManaAmount;
 						remainingMana = 0;
-						
-							pTarget->m_Qualities.SetInt(ITEM_CUR_MANA_INT, newManaAmount);
+
+						pTarget->m_Qualities.SetInt(ITEM_CUR_MANA_INT, newManaAmount);
 						pTarget->NotifyIntStatUpdated(ITEM_CUR_MANA_INT, false);
-						
-							SendText(csprintf("The %s gives %s mana to the %s.", pTool->GetName().c_str(), FormatNumberString(manaStoneCurrentMana).c_str(), pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
+
+						SendText(csprintf("The %s gives %s mana to the %s.", pTool->GetName().c_str(), FormatNumberString(manaStoneCurrentMana).c_str(), pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 						SendText(csprintf("You need %s more mana to fully charge the %s.", FormatNumberString(manaStillNeeded).c_str(), pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 
 					}
 				}
 			}
-			
-				if (manaStoneDestroyChance >= 1.0 || Random::RollDice(0.0, 1.0) <= manaStoneDestroyChance) {
+
+			if (manaStoneDestroyChance >= 1.0 || Random::RollDice(0.0, 1.0) <= manaStoneDestroyChance) {
 				SendText(csprintf("The %s is destroyed.", pTool->GetName().c_str()), LTT_DEFAULT);
 				pTool->Remove();
 				RecalculateEncumbrance();
-				
+
 			}
 			else {
 				pTool->m_Qualities.SetInt(ITEM_CUR_MANA_INT, remainingMana);
 				pTool->NotifyIntStatUpdated(ITEM_CUR_MANA_INT, false);
-				
-					if (remainingMana == 0)
-					{
+
+				if (remainingMana == 0)
+				{
 					pTool->m_Qualities.SetInt(UI_EFFECTS_INT, 0);
 					pTool->NotifyIntStatUpdated(UI_EFFECTS_INT, false);
-					}
+				}
 			}
 		}
 		break;
@@ -1260,7 +1260,7 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 			pTarget = swapHelper;
 		}
 
-		if(pTool->IsWielded() || pTarget->IsWielded())
+		if (pTool->IsWielded() || pTarget->IsWielded())
 			return WERROR_CRAFT_ALL_OBJECTS_NOT_FROZEN;
 
 		if (get_minterp()->interpreted_state.current_style != Motion_NonCombat)
@@ -1361,13 +1361,13 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 			{
 				success = true;
 				//Merged from GDLE2 Team https://gitlab.com/Scribble/gdlenhanced/commit/75132b15809a026a58d5ed5abefac26290b14461 //
-			std::string text = csprintf("%s successfully applies the %s (workmanship %.2f) to the %s.", GetName().c_str(), pTool->GetName().c_str(), toolWorkmanship, pTarget->GetName().c_str());
-			if (!text.empty())
-			{
-				g_pWorld->BroadcastLocal(GetLandcell(), text);
+				std::string text = csprintf("%s successfully applies the %s (workmanship %.2f) to the %s.", GetName().c_str(), pTool->GetName().c_str(), toolWorkmanship, pTarget->GetName().c_str());
+				if (!text.empty())
+				{
+					g_pWorld->BroadcastLocal(GetLandcell(), text);
+				}
 			}
-		}
-		else {
+			else {
 				success = false;
 				//Merged from GDLE2 Team https://gitlab.com/Scribble/gdlenhanced/commit/75132b15809a026a58d5ed5abefac26290b14461 //
 				std::string text = csprintf("%s fails to apply the %s (workmanship %.2f) to the %s. The target is destroyed.", GetName().c_str(), pTool->GetName().c_str(), toolWorkmanship, pTarget->GetName().c_str());
@@ -1375,7 +1375,7 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				{
 					g_pWorld->BroadcastLocal(GetLandcell(), text);
 				}
-		}
+			}
 			break;
 		}
 		case 2: //imbues
@@ -1392,14 +1392,14 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 			if (Random::RollDice(0.0, 1.0) <= successChance)
 			{
 				success = true;
-			//Merged from GDLE2 Team https://gitlab.com/Scribble/gdlenhanced/commit/75132b15809a026a58d5ed5abefac26290b14461 //
-			std::string text = csprintf("%s successfully applies the %s (workmanship %.2f) to the %s.", GetName().c_str(), pTool->GetName().c_str(), toolWorkmanship, pTarget->GetName().c_str());
-			if (!text.empty())
-			{
-				g_pWorld->BroadcastLocal(GetLandcell(), text);
+				//Merged from GDLE2 Team https://gitlab.com/Scribble/gdlenhanced/commit/75132b15809a026a58d5ed5abefac26290b14461 //
+				std::string text = csprintf("%s successfully applies the %s (workmanship %.2f) to the %s.", GetName().c_str(), pTool->GetName().c_str(), toolWorkmanship, pTarget->GetName().c_str());
+				if (!text.empty())
+				{
+					g_pWorld->BroadcastLocal(GetLandcell(), text);
+				}
 			}
-		}
-		else {
+			else {
 
 				success = false;
 				//Merged from GDLE2 Team https://gitlab.com/Scribble/gdlenhanced/commit/75132b15809a026a58d5ed5abefac26290b14461 //
@@ -1408,7 +1408,7 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				{
 					g_pWorld->BroadcastLocal(GetLandcell(), text);
 				}
-		}
+			}
 			break;
 		}
 		default:
@@ -2014,7 +2014,7 @@ void CPlayerWeenie::PerformUseModificationScript(DWORD scriptId, CCraftOperation
 	switch (scriptId)
 	{
 	case 0x3800000f: //flag stamp failure
-		//not sure what is supposed to be done here.
+					 //not sure what is supposed to be done here.
 		break;
 	case 0x38000011: //steel
 		pTarget->m_Qualities.SetInt(ARMOR_LEVEL_INT, pTarget->InqIntQuality(ARMOR_LEVEL_INT, 0, TRUE) + 20);
@@ -2320,7 +2320,7 @@ void CPlayerWeenie::PerformUseModifications(int index, CCraftOperation *op, CWee
 					value = 0;
 				break;
 			case 3: //copy value from modificationSource to target
-				if(modificationSource)
+				if (modificationSource)
 					value = modificationSource->InqIntQuality(intMod._stat, 0);
 				break;
 			case 4: //copy value from modificationSource to created item
@@ -2680,7 +2680,7 @@ void CPlayerWeenie::PerformUseModifications(int index, CCraftOperation *op, CWee
 					default:
 						value = modificationSource->InqIIDQuality(iidMod._stat, 0);
 						break;
-					}					
+					}
 				}
 				break;
 			case 4: //copy value from modificationSource to created item
@@ -3035,7 +3035,7 @@ void CPlayerWeenie::PerformSalvaging(DWORD toolId, PackableList<DWORD> items)
 			salvageResults.push_back(salvageResult);
 		}
 
-		if(partialBagAmount > 0)
+		if (partialBagAmount > 0)
 		{
 			SpawnSalvageBagInContainer(material, partialBagAmount, salvageInfo.totalWorkmanship, valuePerUnit * partialBagAmount, salvageInfo.itemsSalvagedCountCont);
 			//Merged from GDLE2 Team https://gitlab.com/Scribble/gdlenhanced/commit/0b2125d1d41cf582b274bf157485fcd5f1183170 //
@@ -3080,29 +3080,29 @@ bool CPlayerWeenie::SpawnSalvageBagInContainer(MaterialType material, int amount
 
 void CPlayerWeenie::SetLoginPlayerQualities()
 {
-		//Temporary as a way to fix existing characters
-		if (m_Qualities._skillStatsTable)
-		 {
+	//Temporary as a way to fix existing characters
+	if (m_Qualities._skillStatsTable)
+	{
 		for (PackableHashTableWithJson<STypeSkill, Skill>::iterator entry = m_Qualities._skillStatsTable->begin(); entry != m_Qualities._skillStatsTable->end(); entry++)
-			 {
+		{
 			Skill skill = entry->second;
 			if (skill._sac == SKILL_ADVANCEMENT_CLASS::SPECIALIZED_SKILL_ADVANCEMENT_CLASS)
-				 m_Qualities.SetSkillLevel(entry->first, 10);
+				m_Qualities.SetSkillLevel(entry->first, 10);
 			else if (skill._sac == SKILL_ADVANCEMENT_CLASS::TRAINED_SKILL_ADVANCEMENT_CLASS)
-				 m_Qualities.SetSkillLevel(entry->first, 5);
+				m_Qualities.SetSkillLevel(entry->first, 5);
 			else
-				 m_Qualities.SetSkillLevel(entry->first, 0);
-			}
+				m_Qualities.SetSkillLevel(entry->first, 0);
 		}
-		
-		//End of temporary code
+	}
+
+	//End of temporary code
 
 	g_pAllegianceManager->SetWeenieAllegianceQualities(this);
 	m_Qualities.SetFloat(LOGIN_TIMESTAMP_FLOAT, Timer::cur_time);
 
 	// Position startPos = Position(0xDB75003B, Vector(186.000000f, 65.000000f, 36.088333f), Quaternion(1.000000, 0.000000, 0.000000, 0.000000));
 	// Position startPos = Position(0xA9B4001F, Vector(87.750603f, 147.722321f, 66.005005f), Quaternion(0.011819f, 0.000000, 0.000000, -0.999930f));
-	
+
 	// Your location is: 0xC98C0028 [113.665604 190.259003 22.004999] -0.707107 0.000000 0.000000 -0.707107 Rithwic
 	// Position startPos = Position(0xC98C0028, Vector(113.665604f, 190.259003f, 22.004999f), Quaternion(-0.707107f, 0.000000, 0.000000, -0.707107f));
 	// SetInitialPosition(startPos);
@@ -3324,7 +3324,7 @@ void CWandSpellUseEvent::OnReadyToUse()
 	}
 
 	_spellId = wand->InqDIDQuality(SPELL_DID, 0);
-	if(!_spellId)
+	if (!_spellId)
 	{
 		Cancel();
 		return;
@@ -3334,7 +3334,7 @@ void CWandSpellUseEvent::OnReadyToUse()
 	DWORD skillValue;
 	if (skill != 0 && _weenie->InqSkill(skill, skillValue, false))
 	{
-		if(skillValue < wand->InqIntQuality(ITEM_SKILL_LEVEL_LIMIT_INT, 0))
+		if (skillValue < wand->InqIntQuality(ITEM_SKILL_LEVEL_LIMIT_INT, 0))
 		{
 			SkillTable *pSkillTable = SkillSystem::GetSkillTable();
 			const SkillBase *pSkillBase = pSkillTable->GetSkillBase(skill);
