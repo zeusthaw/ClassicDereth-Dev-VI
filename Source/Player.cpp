@@ -1012,21 +1012,45 @@ struct CompareManaNeeds : public std::binary_function<CWeenieObject*, CWeenieObj
 	}
 };
 
-
 int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 {
+	// Save these for later as we may have to send a confirmation
+	m_pCraftingTool = pTool;
+	m_pCraftingTarget = pTarget;
+
+	return UseEx(false);
+}
+
+int CPlayerWeenie::UseEx(bool bConfirmed)
+{
+	// Load the saved crafting targets
+	CWeenieObject *pTool = m_pCraftingTool;
+	CWeenieObject *pTarget = m_pCraftingTarget;
+
+	if (pTool == NULL || pTarget == NULL)
+	{
+		// no queued crafting op
+		return WERROR_NONE;
+	}
+
 	int toolType = pTool->InqIntQuality(ITEM_TYPE_INT, 0);
 
 	switch (toolType)
 	{
 	case TYPE_MANASTONE:
 	{
+<<<<<<< HEAD
 		// Merged changes from https://gitlab.com/fourk/gdlenhanced/tree/use_mana_stones_on_self
 		// TODO: move this logic to ManaStone.cpp
 		int targetType = pTarget->InqIntQuality(ITEM_TYPE_INT, 0);
 		if (!(targetType & TYPE_ITEM) && !(targetType & TYPE_CREATURE))
 		{
 
+=======
+		// TODO: move this logic to ManaStone.cpp
+		int targetType = pTarget->InqIntQuality(ITEM_TYPE_INT, 0);
+		if (!(targetType & TYPE_ITEM) && !(targetType & TYPE_CREATURE)) {
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 			SendText(csprintf("That's not a valid target for the %s", pTool->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 			break;
 		}
@@ -1034,10 +1058,10 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 		int manaStoneCurrentMana = pTool->InqIntQuality(ITEM_CUR_MANA_INT, -1, TRUE);
 		double manaStoneDestroyChance = pTool->InqFloatQuality(MANA_STONE_DESTROY_CHANCE_FLOAT, -1, TRUE);
 		double manaStoneEfficiency = pTool->InqFloatQuality(ITEM_EFFICIENCY_FLOAT, -1, TRUE);
-
 		int targetCurrentMana = pTarget->InqIntQuality(ITEM_CUR_MANA_INT, -1, TRUE);
 		int targetMaxMana = pTarget->InqIntQuality(ITEM_MAX_MANA_INT, -1, TRUE);
 
+<<<<<<< HEAD
 		if (manaStoneCurrentMana <= 0)
 		{
 			if (targetType &TYPE_CREATURE)
@@ -1049,9 +1073,19 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 			}
 			if (targetMaxMana <= 0)
 			{
+=======
+		if (manaStoneCurrentMana <= 0) {
+			if (targetType &TYPE_CREATURE) {
+				//player attempting to use an uncharged mana stone on themselves...what do we do
+				SendText("Despite your best efforts, you fail to destroy yourself.", LTT_DEFAULT); // TODO: better text
+				break;
+			}
+			if (targetCurrentMana <= 0) {
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 				SendText(csprintf("The %s has no mana to drain.", pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 				break;
 			}
+
 			if (!pTarget->InqBoolQuality(RETAINED_BOOL, FALSE)) {
 				int drainedMana = round(targetCurrentMana * manaStoneEfficiency);
 				pTool->m_Qualities.SetInt(ITEM_CUR_MANA_INT, drainedMana);
@@ -1064,14 +1098,21 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				// The Mana Stone drains 4,434 points of mana from the Pocket Watch.
 				// The Pocket Watch is destroyed.
 				SendText(csprintf("The %s drains %s points of mana from the %s.\nThe %s is destroyed.", pTool->GetName().c_str(), FormatNumberString(drainedMana).c_str(), pTarget->GetName().c_str(), pTarget->GetName().c_str()), LTT_DEFAULT);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 			}
 			else {
 				SendText("Retained items can't be drained.", LTT_DEFAULT); //todo: made up message, confirm if it's correct
 				break;
+<<<<<<< HEAD
 
 			}
 
+=======
+			}
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 		}
 		else { // mana stone is being emptied, not filled
 			int remainingMana;
@@ -1084,30 +1125,33 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				priority_queue<CWeenieObject*, vector<CWeenieObject*>, CompareManaNeeds > itemsNeedingMana, itemsStillNeedingMana; // MIN heaps sorted by mana deficit
 				for (auto wielded : m_Wielded)
 				{
-					unsigned int curMana = wielded->InqIntQuality(ITEM_CUR_MANA_INT, 0, TRUE);
-					unsigned int maxMana = wielded->InqIntQuality(ITEM_MAX_MANA_INT, 0, TRUE);
-					unsigned int deficit = maxMana - curMana;
+					int curMana = wielded->InqIntQuality(ITEM_CUR_MANA_INT, 0, TRUE);
+					int maxMana = wielded->InqIntQuality(ITEM_MAX_MANA_INT, 0, TRUE);
+					int deficit = maxMana - curMana;
 					if (deficit > 0) {
 						itemsNeedingMana.push(wielded);
+<<<<<<< HEAD
 
 					}
 
+=======
+					}
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 				}
 				if (itemsNeedingMana.empty()) {
 					SendText("None of your items need mana", LTT_DEFAULT); // What's the correct text?
 					break;
 				}
-
 				int manaToDistribute = manaStoneCurrentMana;
 				int manaDistributed = 0;
 				std::set<CWeenieObject*> objectsReceivingMana; // for the chatmessage at the end
 
 				while (manaToDistribute > 0 && !(itemsNeedingMana.empty())) {
-					CWeenieObject * itemNeedingLeastMana = itemsNeedingMana.top();
+					CWeenieObject* itemNeedingLeastMana = itemsNeedingMana.top();
 					int deficit = itemNeedingLeastMana->InqIntQuality(ITEM_MAX_MANA_INT, 0, TRUE) - itemNeedingLeastMana->InqIntQuality(ITEM_CUR_MANA_INT, 0, TRUE);
-					int manaToApplyToEach = 0;
-					int overflowManaToApply = 0; // when available mana / items_needing_mana is uneven, we give the remainder to whatever is closest to full.
+					unsigned int manaToApplyToEach = 0;
 
+<<<<<<< HEAD
 					if (deficit * itemsNeedingMana.size() >= manaToDistribute) {
 						manaToApplyToEach = manaToDistribute / itemsNeedingMana.size();
 						overflowManaToApply = manaToDistribute % itemsNeedingMana.size();
@@ -1116,11 +1160,30 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 					else {
 						manaToApplyToEach = deficit;
 
+=======
+					try
+					{
+						if (deficit * itemsNeedingMana.size() >= manaToDistribute) {
+							// applying smallest deficit to all items would require more mana than available for distribution
+							manaToApplyToEach = manaToDistribute / itemsNeedingMana.size();
+						}
+						else {
+							manaToApplyToEach = deficit;
+						}
 					}
+					catch (...)
+					{
+						//SERVER_ERROR << "Error in UseEx for mana stones"; //Used in easy logging currently not ported over from GDLE
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
+					}
+
+					manaToApplyToEach = max(1, manaToApplyToEach); // for when manaToDistribute / itemsNeedingMana rounds down to 0, apply 1 mana until we're out
+
 					while (!itemsNeedingMana.empty()) {
-						CWeenieObject * item = itemsNeedingMana.top();
+						CWeenieObject* item = itemsNeedingMana.top();
 						int itemMaxMana = item->InqIntQuality(ITEM_MAX_MANA_INT, 0, TRUE);
 						itemsNeedingMana.pop();
+<<<<<<< HEAD
 
 						int newManaAmount = item->InqIntQuality(ITEM_CUR_MANA_INT, 0, TRUE) + manaToApplyToEach;
 						manaToDistribute -= manaToApplyToEach;
@@ -1138,6 +1201,24 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 						if (newManaAmount < itemMaxMana) {
 							itemsStillNeedingMana.push(item);
 
+=======
+						if (manaToDistribute <= 0) {
+							// from when we rounded up manaToApplyToEach from 0 to 1, once we're out of mana we want to finish this while loop without applying any more mana to items
+							itemsStillNeedingMana.push(item);
+							continue;
+						}
+
+						unsigned int newManaAmount = item->InqIntQuality(ITEM_CUR_MANA_INT, 0, TRUE) + manaToApplyToEach;
+						manaToDistribute -= manaToApplyToEach;
+						manaDistributed += manaToApplyToEach;
+
+						if (newManaAmount < itemMaxMana) {
+							itemsStillNeedingMana.push(item);
+						}
+
+						if (manaToApplyToEach > 0) { // handle case when you use a stone that doesn't even have enough mana to give 1 to each deficit item
+							objectsReceivingMana.insert(item);
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 						}
 						if (manaToApplyToEach > 0) { // handle case when you use a stone that doesn't even have enough mana to give 1 to each deficit item
 							objectsReceivingMana.insert(item);
@@ -1146,9 +1227,18 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 						item->m_Qualities.SetInt(ITEM_CUR_MANA_INT, newManaAmount);
 						item->NotifyIntStatUpdated(ITEM_CUR_MANA_INT, false); // todo: is second positional arg correct?
 
+<<<<<<< HEAD
+=======
+						item->m_Qualities.SetInt(ITEM_CUR_MANA_INT, min(newManaAmount, itemMaxMana));
+						item->NotifyIntStatUpdated(ITEM_CUR_MANA_INT, false); // todo: is second positional arg correct?
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 					}
-					itemsNeedingMana.swap(itemsStillNeedingMana);
 
+					itemsNeedingMana.swap(itemsStillNeedingMana);
+<<<<<<< HEAD
+
+=======
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 				}
 				remainingMana = manaToDistribute;
 				std::stringstream ss;
@@ -1157,28 +1247,41 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				while (it != objectsReceivingMana.end()) {
 					if (it != objectsReceivingMana.begin()) {
 						ss << ", ";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 					}
-					CWeenieObject * item = *it;
+					CWeenieObject* item = *it;
 					ss << item->GetName();
 					it++;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 				}
 				SendText(ss.str().c_str(), LTT_DEFAULT);
 				int remainingDeficit = 0;
 				while (!itemsNeedingMana.empty()) {
 					remainingDeficit += (itemsNeedingMana.top()->InqIntQuality(ITEM_MAX_MANA_INT, 0, TRUE) - itemsNeedingMana.top()->InqIntQuality(ITEM_CUR_MANA_INT, 0, TRUE));
 					itemsNeedingMana.pop();
+<<<<<<< HEAD
 
+=======
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 				}
 				if (remainingDeficit == 0) {
 					SendText("Your items are fully charged.", LTT_DEFAULT);
 				}
 				else {
 					SendText(csprintf("You need %s more mana to fully charge your items.", FormatNumberString(remainingDeficit).c_str()), LTT_DEFAULT);
+<<<<<<< HEAD
 
 				}
 
+=======
+				}
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 			}
 			else { // manastone being emptied into an item
 
@@ -1186,7 +1289,10 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				{
 					SendText(csprintf("The %s does not require mana.", pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 					break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 				}
 				else if (targetCurrentMana >= targetMaxMana)
 				{
@@ -1197,6 +1303,7 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				{
 					int manaNeeded = targetMaxMana - targetCurrentMana;
 
+
 					if (manaStoneCurrentMana >= manaNeeded)
 					{
 						pTarget->m_Qualities.SetInt(ITEM_CUR_MANA_INT, targetMaxMana);
@@ -1206,7 +1313,10 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 
 						SendText(csprintf("The %s gives %s mana to the %s.", pTool->GetName().c_str(), FormatNumberString(manaNeeded).c_str(), pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 						SendText(csprintf("The %s is fully charged.", pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
+<<<<<<< HEAD
 
+=======
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 					}
 					else
 					{
@@ -1216,10 +1326,15 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 
 						pTarget->m_Qualities.SetInt(ITEM_CUR_MANA_INT, newManaAmount);
 						pTarget->NotifyIntStatUpdated(ITEM_CUR_MANA_INT, false);
+<<<<<<< HEAD
 
 						SendText(csprintf("The %s gives %s mana to the %s.", pTool->GetName().c_str(), FormatNumberString(manaStoneCurrentMana).c_str(), pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 						SendText(csprintf("You need %s more mana to fully charge the %s.", FormatNumberString(manaStillNeeded).c_str(), pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
+=======
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 
+						SendText(csprintf("The %s gives %s mana to the %s.", pTool->GetName().c_str(), FormatNumberString(manaStoneCurrentMana).c_str(), pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
+						SendText(csprintf("You need %s more mana to fully charge the %s.", FormatNumberString(manaStillNeeded).c_str(), pTarget->GetName().c_str()), LTT_DEFAULT); //todo: made up message, confirm if it's correct
 					}
 				}
 			}
@@ -1228,7 +1343,10 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				SendText(csprintf("The %s is destroyed.", pTool->GetName().c_str()), LTT_DEFAULT);
 				pTool->Remove();
 				RecalculateEncumbrance();
+<<<<<<< HEAD
 
+=======
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 			}
 			else {
 				pTool->m_Qualities.SetInt(ITEM_CUR_MANA_INT, remainingMana);
@@ -1241,6 +1359,7 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				}
 			}
 		}
+
 		break;
 	}
 	default:
@@ -1336,29 +1455,37 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 			if (sac < TRAINED_SKILL_ADVANCEMENT_CLASS)
 				return WERROR_CRAFT_NOT_HAVE_SKILL;
 
-			InqSkill(op->_skill, skillLevel, TRUE);
+			InqSkill(op->_skill, skillLevel, FALSE);
 		}
 
-		bool success = false;
+		double successChance;
 		switch (op->_SkillCheckFormulaType)
 		{
 		case 0:
 			if (skillLevel == 0)
-				success = true;
+			{
+				// success = true
+				successChance = 1.0;
+			}
 			else
-				success = GenericSkillCheck(skillLevel, op->_difficulty);
+			{
+				successChance = GetSkillChance(skillLevel, op->_difficulty);
+			}
 			break;
 		case 1: //tinkers
+		case 2: //imbues
 		{
 			double toolWorkmanship = pTool->InqIntQuality(ITEM_WORKMANSHIP_INT, 0);
+			double itemWorkmanship = pTarget->InqIntQuality(ITEM_WORKMANSHIP_INT, 0);
 			if (pTool->InqIntQuality(ITEM_TYPE_INT, 0) == ITEM_TYPE::TYPE_TINKERING_MATERIAL)
 				toolWorkmanship /= (double)pTool->InqIntQuality(NUM_ITEMS_IN_MATERIAL_INT, 1);
 			int amountOfTimesTinkered = pTarget->InqIntQuality(NUM_TIMES_TINKERED_INT, 0);
 
-			double successChance = GetSkillChance(skillLevel, ((int)round(((1.0 - ((double)toolWorkmanship / 10.0)) * 400.0) + (amountOfTimesTinkered * 10)))); //made up formula.
+			int salvageMod;
 
-			if (Random::RollDice(0.0, 1.0) <= successChance)
+			if (op->_SkillCheckFormulaType == 1)
 			{
+<<<<<<< HEAD
 				success = true;
 				//Merged from GDLE2 Team https://gitlab.com/Scribble/gdlenhanced/commit/75132b15809a026a58d5ed5abefac26290b14461 //
 				std::string text = csprintf("%s successfully applies the %s (workmanship %.2f) to the %s.", GetName().c_str(), pTool->GetName().c_str(), toolWorkmanship, pTarget->GetName().c_str());
@@ -1386,11 +1513,22 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 			int amountOfTimesTinkered = pTarget->InqIntQuality(NUM_TIMES_TINKERED_INT, 0);
 
 			double successChance = GetSkillChance(skillLevel, ((int)round(((1.0 - ((double)toolWorkmanship / 10.0)) * 400.0) + (amountOfTimesTinkered * 10)))); //made up formula.
-
-			successChance = min(successChance, 1.0 / 9.0); //maximum success chance for imbues is 33%
-
-			if (Random::RollDice(0.0, 1.0) <= successChance)
+=======
+				salvageMod = GetMaterialMod(pTool->InqIntQuality(MATERIAL_TYPE_INT, 0));
+			}
+			else
 			{
+				//TODO:salvage mod needs to be grabbed from material type rather than a hard coded value
+				salvageMod = 20;
+			}
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
+
+			int multiple = 1;
+			double difficulty = (1 + (amountOfTimesTinkered * 0.1));
+
+			if (toolWorkmanship >= itemWorkmanship)
+			{
+<<<<<<< HEAD
 				success = true;
 				//Merged from GDLE2 Team https://gitlab.com/Scribble/gdlenhanced/commit/75132b15809a026a58d5ed5abefac26290b14461 //
 				std::string text = csprintf("%s successfully applies the %s (workmanship %.2f) to the %s.", GetName().c_str(), pTool->GetName().c_str(), toolWorkmanship, pTarget->GetName().c_str());
@@ -1408,47 +1546,98 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				{
 					g_pWorld->BroadcastLocal(GetLandcell(), text);
 				}
+=======
+				multiple = 2;
+			}
+
+			if (amountOfTimesTinkered > 2)
+			{
+				difficulty = amountOfTimesTinkered * 0.5;
+			}
+			successChance = GetSkillChance(skillLevel, ((int)floor(((5 * salvageMod) + (2 * itemWorkmanship * salvageMod) - (toolWorkmanship * multiple * salvageMod / 5)) * difficulty))); //Formulas from Endy's Tinkering Calculator
+
+			if (op->_SkillCheckFormulaType == 2) // imbue
+			{
+				successChance /= 3;
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 			}
 			break;
 		}
 		default:
-			//Merged from GDLE2 Team https://gitlab.com/Scribble/gdlenhanced/commit/75132b15809a026a58d5ed5abefac26290b14461 //
 			SendText(csprintf("Unsupported skill check formula type: %u.", op->_SkillCheckFormulaType), LTT_CRAFT);
 			return WERROR_CRAFT_DONT_CONTAIN_EVERYTHING;
 		}
 
-		DWORD wcidToCreate;
-		int amount;
-		string message;
-		if (success)
+		// 0x80000000 : Use Crafting Chance of Success Dialog
+		if (_playerModule.options_ & 0x80000000 && !bConfirmed)
 		{
-			wcidToCreate = op->_successWcid;
-			amount = op->_successAmount;
-			message = op->_successMessage;
-		}
-		else
-		{
-			wcidToCreate = op->_failWcid;
-			amount = op->_failAmount;
-			message = op->_failMessage;
-		}
+			std::ostringstream sstrMessage;
+			sstrMessage.precision(3);
+			sstrMessage << "You have a " << successChance * 100 << "% chance of using " << pTool->GetName() << " on " << pTarget->GetName() << ".";
 
-		CWeenieObject *newItem = g_pWeenieFactory->CreateWeenieByClassID(wcidToCreate, NULL, false);
-		if (amount > 1)
-			newItem->SetStackSize(amount);
 
-		if (wcidToCreate != 0 && !SpawnInContainer(newItem, amount))
+			BinaryWriter confirmCrafting;
+			confirmCrafting.Write<DWORD>(0x274);	// Message Type
+			confirmCrafting.Write<DWORD>(0x05);		// Confirm type (craft)
+			confirmCrafting.Write<int>(0);			// Sequence number??
+			confirmCrafting.WriteString(sstrMessage.str());
+
+			SendNetMessage(&confirmCrafting, PRIVATE_MSG, TRUE, FALSE);
+
 			return WERROR_NONE;
+		}
 
-		SendText(message.c_str(), LTT_CRAFT);
+		double successRoll = Random::RollDice(0.0, 1.0);
 
-		if (success)
+		if (successRoll <= successChance)
 		{
+			// Results!
+			// Create item(s)
+			CWeenieObject *newItem = g_pWeenieFactory->CreateWeenieByClassID(op->_successWcid, NULL, false);
+			if (op->_successAmount > 1)
+				newItem->SetStackSize(op->_successAmount);
+
+			// if we can't put the item in inventory
+			if (op->_successWcid != 0 && !SpawnInContainer(newItem, op->_successAmount))
+			{
+				SendText("Unable to create result!", LTT_ERROR);
+				// Return before we delete the tool/target
+				// TODO: is this to do with pack space? should check before the roll if so
+				return WERROR_NONE;
+			}
+
+			SendText(op->_successMessage.c_str(), LTT_CRAFT);
+
+			// Broadcast messages for tinkering
+			switch (op->_SkillCheckFormulaType)
+			{
+			case 1: //tinkers
+			case 2: //imbues
+			{
+				double toolWorkmanship = pTool->InqIntQuality(ITEM_WORKMANSHIP_INT, 0);
+				double itemWorkmanship = pTarget->InqIntQuality(ITEM_WORKMANSHIP_INT, 0);
+				if (pTool->InqIntQuality(ITEM_TYPE_INT, 0) == ITEM_TYPE::TYPE_TINKERING_MATERIAL)
+					toolWorkmanship /= (double)pTool->InqIntQuality(NUM_ITEMS_IN_MATERIAL_INT, 1);
+				int amountOfTimesTinkered = pTarget->InqIntQuality(NUM_TIMES_TINKERED_INT, 0);
+
+
+				std::string text = csprintf("%s successfully applies the %s (workmanship %.2f) to the %s.", GetName().c_str(), pTool->GetName().c_str(), toolWorkmanship, pTarget->GetName().c_str());
+				if (!text.empty())
+				{
+					g_pWorld->BroadcastLocal(GetLandcell(), text);
+				}
+				/*
+				IMBUE_LOG << "P:" << InqStringQuality(NAME_STRING, "") << " SL:" << skillLevel << " T:" << pTarget->InqStringQuality(NAME_STRING, "") << " TW:" << itemWorkmanship << " TT:" << amountOfTimesTinkered <<
+				" M:" << pTool->InqStringQuality(NAME_STRING, "") << " MW:" << toolWorkmanship << " %:" << successChance << " Roll:" << successRoll << " S/F:" << (successChance ? "TRUE" : "FALSE");
+				*/
+				break;
+			}
+			}
+
 			PerformUseModifications(0, op, pTool, pTarget, newItem);
 			PerformUseModifications(1, op, pTool, pTarget, newItem);
 			PerformUseModifications(2, op, pTool, pTarget, newItem);
 			PerformUseModifications(3, op, pTool, pTarget, newItem);
-
 
 			if (requiredStamina == 0)
 				AdjustStamina(-5); //if we don't have any stamina usage specified let's use 5.
@@ -1466,13 +1655,58 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 					SendText(op->_successConsumeToolMessage.c_str(), LTT_CRAFT);
 			}
 		}
-		else
+		else // Not successful
 		{
+			// Results!
+			// Create item(s)
+			CWeenieObject *newItem = g_pWeenieFactory->CreateWeenieByClassID(op->_failWcid, NULL, false);
+			if (op->_failAmount > 1)
+				newItem->SetStackSize(op->_failAmount);
+
+			// if we can't put the item in inventory
+			if (op->_failWcid != 0 && !SpawnInContainer(newItem, op->_failAmount))
+			{
+				SendText("Unable to create result!", LTT_ERROR);
+				// Return before we delete the tool/target
+				// TODO: is this to do with pack space? should check before the roll if so
+				return WERROR_NONE;
+			}
+
+			SendText(op->_failMessage.c_str(), LTT_CRAFT);
+
+			// Broadcast messages for tinkering
+			switch (op->_SkillCheckFormulaType)
+			{
+			case 1: //tinkers
+			case 2: //imbues
+			{
+				double toolWorkmanship = pTool->InqIntQuality(ITEM_WORKMANSHIP_INT, 0);
+				double itemWorkmanship = pTarget->InqIntQuality(ITEM_WORKMANSHIP_INT, 0);
+				if (pTool->InqIntQuality(ITEM_TYPE_INT, 0) == ITEM_TYPE::TYPE_TINKERING_MATERIAL)
+					toolWorkmanship /= (double)pTool->InqIntQuality(NUM_ITEMS_IN_MATERIAL_INT, 1);
+				int amountOfTimesTinkered = pTarget->InqIntQuality(NUM_TIMES_TINKERED_INT, 0);
+
+
+				std::string text = csprintf("%s fails to apply the %s (workmanship %.2f) to the %s. The target is destroyed.", GetName().c_str(), pTool->GetName().c_str(), toolWorkmanship, pTarget->GetName().c_str());
+				if (!text.empty())
+				{
+					g_pWorld->BroadcastLocal(GetLandcell(), text);
+				}
+
+				/*
+				Logger
+				IMBUE_LOG << "P:" << InqStringQuality(NAME_STRING, "") << " SL:" << skillLevel << " T:" << pTarget->InqStringQuality(NAME_STRING, "") << " TW:" << itemWorkmanship << " TT:" << amountOfTimesTinkered <<
+				" M:" << pTool->InqStringQuality(NAME_STRING, "") << " MW:" << toolWorkmanship << " %:" << successChance << " Roll:" << successRoll << " S/F:" << (successChance ? "TRUE" : "FALSE");
+				*/
+
+				break;
+			}
+			}
+
 			PerformUseModifications(4, op, pTool, pTarget, newItem);
 			PerformUseModifications(5, op, pTool, pTarget, newItem);
 			PerformUseModifications(6, op, pTool, pTarget, newItem);
 			PerformUseModifications(7, op, pTool, pTarget, newItem);
-
 
 			if (requiredStamina == 0)
 				AdjustStamina(-5); //if we don't have any stamina usage specified let's use 5.
@@ -1489,7 +1723,14 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 				if (!op->_failureConsumeToolMessage.empty())
 					SendText(op->_failureConsumeToolMessage.c_str(), LTT_CRAFT);
 			}
+
+			// Your craft attempt fails.
+			NotifyWeenieError(0x432);
 		}
+
+		// We don't need these anymore
+		m_pCraftingTool = NULL;
+		m_pCraftingTarget = NULL;
 
 		RecalculateEncumbrance();
 		break;
@@ -1498,6 +1739,58 @@ int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 	return WERROR_NONE;
 }
 
+int CPlayerWeenie::GetMaterialMod(int materialInt)
+{
+	switch (materialInt)
+	{
+	case Gold_MaterialType:
+	case Oak_MaterialType:
+	{
+		return 10;
+	}
+	case Ebony_MaterialType:
+	case Teak_MaterialType:
+	case Steel_MaterialType:
+	case Satin_MaterialType:
+	case Porcelain_MaterialType:
+	case Mahogany_MaterialType:
+	case Iron_MaterialType:
+	case Green_Garnet_MaterialType:
+	{
+		return 12;
+	}
+	case Alabaster_MaterialType:
+	case Brass_MaterialType:
+	case Armoredillo_Hide_MaterialType:
+	case Wool_MaterialType:
+	case Velvet_MaterialType:
+	case Reed_Shark_Hide_MaterialType:
+	case Pine_MaterialType:
+	case Opal_MaterialType:
+	case Marble_MaterialType:
+	case Linen_MaterialType:
+	case Granite_MaterialType:
+	case Ceramic_MaterialType:
+	case Bronze_MaterialType:
+	case Moonstone_MaterialType:
+	{
+		return 11;
+	}
+	case Bloodstone_MaterialType:
+	case Rose_Quartz_MaterialType:
+	case Red_Jade_MaterialType:
+	case Malachite_MaterialType:
+	case Lavender_Jade_MaterialType:
+	case Hematite_MaterialType:
+	case Citrine_MaterialType:
+	case Carnelian_MaterialType:
+	{
+		return 25;
+	}
+	default:
+		return 20; // Imbue material
+	}
+}
 
 bool CPlayerWeenie::CheckUseRequirements(int index, CCraftOperation *op, CWeenieObject *pTool, CWeenieObject *pTarget)
 {

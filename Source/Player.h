@@ -53,16 +53,28 @@ public:
 	virtual void NotifyWeenieError(int error) override;
 	virtual void NotifyWeenieErrorWithString(int error, const char *text) override;
 	virtual void NotifyInventoryFailedEvent(DWORD object_id, int error) override;
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 	CWeenieObject *m_pCraftingTool;
 	CWeenieObject *m_pCraftingTarget;
 
 	virtual int UseEx(CWeenieObject *pTool, CWeenieObject *pTarget);
 	virtual int UseEx(bool bConfirmed = false);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 	virtual bool CheckUseRequirements(int index, CCraftOperation *op, CWeenieObject *pTool, CWeenieObject *pTarget);
 	virtual void PerformUseModifications(int index, CCraftOperation *op, CWeenieObject *pTool, CWeenieObject *pTarget, CWeenieObject *pCreatedItem);
 	virtual void PerformUseModificationScript(DWORD scriptId, CCraftOperation *op, CWeenieObject *pTool, CWeenieObject *pTarget, CWeenieObject *pCreatedItem);
 	virtual int CPlayerWeenie::GetMaterialMod(int material);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 50d26084faf34706797e509ef5eb051fdc3950af
 	void PerformSalvaging(DWORD toolId, PackableList<DWORD> items);
 	DWORD MaterialToSalvageBagId(MaterialType material);
 	bool SpawnSalvageBagInContainer(MaterialType material, int amount, int workmanship, int value, int numItems);
