@@ -1455,16 +1455,12 @@ int CPlayerWeenie::UseEx(bool bConfirmed)
 				std::string text = csprintf("%s successfully applies the %s (workmanship %.2f) to the %s.", GetName().c_str(), pTool->GetName().c_str(), toolWorkmanship, pTarget->GetName().c_str());
 				if (!text.empty())
 				{
-					/*
 					g_pWorld->BroadcastLocal(GetLandcell(), text);
-					*/
 				}
-
 				/*
 				IMBUE_LOG << "P:" << InqStringQuality(NAME_STRING, "") << " SL:" << skillLevel << " T:" << pTarget->InqStringQuality(NAME_STRING, "") << " TW:" << itemWorkmanship << " TT:" << amountOfTimesTinkered <<
 				" M:" << pTool->InqStringQuality(NAME_STRING, "") << " MW:" << toolWorkmanship << " %:" << successChance << " Roll:" << successRoll << " S/F:" << (successChance ? "TRUE" : "FALSE");
 				*/
-
 				break;
 			}
 			}
@@ -1525,9 +1521,7 @@ int CPlayerWeenie::UseEx(bool bConfirmed)
 				std::string text = csprintf("%s fails to apply the %s (workmanship %.2f) to the %s. The target is destroyed.", GetName().c_str(), pTool->GetName().c_str(), toolWorkmanship, pTarget->GetName().c_str());
 				if (!text.empty())
 				{
-					/*
 					g_pWorld->BroadcastLocal(GetLandcell(), text);
-					*/
 				}
 
 				/*
