@@ -22,6 +22,8 @@
 #include "Vendor.h"
 #include "AllegianceManager.h"
 #include "House.h"
+#include "SpellcastingManager.h"
+#include "TradeManager.h"
 
 #include "Config.h"
 
@@ -176,9 +178,9 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		m_pPlayer->SendNetMessage(&popupString, PRIVATE_MSG, FALSE, FALSE);
 	}
 	*/
-
-	m_pPlayer->SendText("GDL - Classic Dereth " SERVER_VERSION_NUMBER_STRING " " SERVER_VERSION_STRING, LTT_DEFAULT);
-	m_pPlayer->SendText("Powered by GamesDeadLol. Not an official Asheron's Call server.", LTT_DEFAULT);
+	m_pPlayer->SendText("Classic Dereth:E Now Enhanced with Source Edits provided by the GDLE Team!" SERVER_VERSION_NUMBER_STRING " " SERVER_VERSION_STRING, LTT_DEFAULT);
+	m_pPlayer->SendText("GDLE is Maintained by, ChosenOne, LikeableLime and Scribble, Contact them at https://discord.gg/WzGX348", LTT_DEFAULT);
+	m_pPlayer->SendText("Powered by GamesDeadLol(GDL). Not an official Asheron's Call server.", LTT_DEFAULT);
 
 	/*
 	if (*g_pConfig->WelcomeMessage() != 0)
@@ -406,6 +408,7 @@ void CClientEvents::RequestHealthUpdate(DWORD dwGUID)
 	{
 		if (pEntity->IsCreature())
 		{
+			m_pPlayer->SetLastHealthRequest(pEntity->GetID());
 			m_pClient->SendNetMessage(HealthUpdate((CMonsterWeenie *)pEntity), PRIVATE_MSG, TRUE, TRUE);
 		}
 	}
@@ -1821,6 +1824,24 @@ void CClientEvents::ProcessEvent(BinaryReader *pReader)
 				SetRequestAllegianceUpdate(on);
 				break;
 			}
+		case 0x0275: // confirmation response		cas
+			{
+				DWORD confirmType = pReader->ReadDWORD();
+				int context = pReader->ReadInt32();
+				bool accepted = pReader->ReadInt32();
+				
+					switch (confirmType)
+					{
+					case 0x05: // crafting
+						if (accepted)
+							{
+							m_pPlayer->UseEx(true);
+							}
+						break;
+						}
+				
+					break;
+				}
 		case 0x027D: // ust salvage request
 		{
 			DWORD toolId = pReader->ReadDWORD();
@@ -1853,7 +1874,6 @@ void CClientEvents::ProcessEvent(BinaryReader *pReader)
 			}
 		case 0x0035: //Use Item Ex
 			{
-				//SendText("Use extended not implemented yet.", 9);
 				DWORD dwSourceID = pReader->ReadDWORD();
 				DWORD dwDestID = pReader->ReadDWORD();
 				if (pReader->GetLastError()) break;
@@ -2292,6 +2312,95 @@ void CClientEvents::ProcessEvent(BinaryReader *pReader)
 			Ping();
 			break;
 		}
+		case 0x1F6: // Open Trade Negotiations
+		{
+			if (m_pPlayer->GetTradeManager() != NULL)
+			{
+				//already trading
+				return;
+			}
+
+			CPlayerWeenie *pOther = g_pWorld->FindWithinPVS(m_pPlayer, pReader->Read<DWORD>())->AsPlayer();
+
+			if (!pOther)
+			{
+				// cannot open trade
+				m_pPlayer->SendText("Unable to open trade.", LTT_ERROR);
+			}
+			else if (pOther->_playerModule.options_ & 0x20000)
+			{
+				SendText((pOther->GetName() + " has disabled trading.").c_str(), LTT_ERROR);
+			}
+			else if (pOther->IsBusyOrInAction())
+			{
+				SendText((pOther->GetName() + " is busy.").c_str(), LTT_ERROR);
+			}
+			else if (pOther->GetTradeManager() != NULL)
+			{
+				SendText((pOther->GetName() + " is already trading with someone else!").c_str(), LTT_ERROR);
+			}
+			else if (m_pPlayer->DistanceTo(pOther, true) > 1)
+			{
+				SendText((pOther->GetName() + " is too far away!").c_str(), LTT_ERROR);
+			}
+			else
+			{
+				TradeManager *tm = TradeManager::RegisterTrade(m_pPlayer, pOther);
+
+				m_pPlayer->SetTradeManager(tm);
+				pOther->SetTradeManager(tm);
+			}
+			break;
+		}
+		case 0x1F7: // Close Trade Negotiations
+		{
+			TradeManager* tm = m_pPlayer->GetTradeManager();
+			if (tm)
+			{
+				tm->CloseTrade(m_pPlayer);
+				return;
+			}
+			break;
+		}
+		case 0x1F8: // AddToTrade
+		{
+			TradeManager* tm = m_pPlayer->GetTradeManager();
+			if (tm)
+			{
+				DWORD item = pReader->Read<DWORD>();
+
+				tm->AddToTrade(m_pPlayer, item);
+			}
+			break;
+		}
+		case 0x1FA: // Accept trade
+		{
+			TradeManager* tm = m_pPlayer->GetTradeManager();
+			if (tm)
+			{
+				tm->AcceptTrade(m_pPlayer);
+			}
+			break;
+		}
+		case 0x1FB: // Decline trade
+		{
+			TradeManager* tm = m_pPlayer->GetTradeManager();
+			if (tm)
+			{
+				tm->DeclineTrade(m_pPlayer);
+			}
+			break;
+		}
+		case 0x204: // Reset trade
+		{
+			TradeManager* tm = m_pPlayer->GetTradeManager();
+			if (tm)
+			{
+				tm->ResetTrade(m_pPlayer);
+			}
+			break;
+		}
+
 		case 0x021C: //House_BuyHouse 
 			{
 				DWORD slumlord = pReader->Read<DWORD>();

@@ -1351,6 +1351,37 @@ void CMonsterWeenie::OnTookDamage(DamageEventData &damageData)
 	if (m_MonsterAI)
 		m_MonsterAI->OnTookDamage(damageData);
 }
+void CMonsterWeenie::UpdateDamageList(DamageEventData &damageData)
+{
+	if (damageData.source && damageData.outputDamageFinal > 0)
+	{
+		DWORD source = damageData.source->GetID();
+
+		if (m_aDamageSources.find(source) == m_aDamageSources.end())
+		{
+			m_aDamageSources[source] = 0;
+		}
+
+		m_aDamageSources[source] += damageData.outputDamageFinal;
+	}
+}
+
+void CMonsterWeenie::OnRegen(STypeAttribute2nd currentAttrib, int newAmount)
+{
+	CWeenieObject::OnRegen(currentAttrib, newAmount);
+
+	if (currentAttrib == HEALTH_ATTRIBUTE_2ND)
+	{
+		DWORD maxHealth = 0;
+		m_Qualities.InqAttribute2nd(MAX_HEALTH_ATTRIBUTE_2ND, maxHealth, FALSE);
+
+		if (maxHealth == newAmount)
+		{
+			// reset damage sources
+			m_aDamageSources.clear();
+		}
+	}
+}
 
 void CMonsterWeenie::OnIdentifyAttempted(CWeenieObject *other)
 {

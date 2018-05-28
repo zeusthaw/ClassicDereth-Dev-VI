@@ -2064,7 +2064,7 @@ DWORD CWeenieObject::GiveAttribute2ndXP(STypeAttribute2nd key, DWORD amount)
 	if (raised)
 	{
 		DWORD newLevel;
-		if (m_Qualities.InqAttribute2nd(key, newLevel, FALSE))
+		if (m_Qualities.InqAttribute2nd(key, newLevel, TRUE))
 		{
 			if (_phys_obj)
 				_phys_obj->EmitSound(Sound_RaiseTrait, 1.0, true);
@@ -2971,6 +2971,15 @@ void CWeenieObject::CheckRegeneration(double rate, STypeAttribute2nd currentAttr
 		}
 	}
 
+	else if (AsMonster())
+		{
+			// boosted out of combat regen
+			if (get_minterp()->interpreted_state.current_style == Motion_NonCombat)
+			{
+			rate *= 100;
+			}
+		}
+
 	switch (currentAttrib)
 	{
 	case HEALTH_ATTRIBUTE_2ND:
@@ -3016,12 +3025,7 @@ void CWeenieObject::CheckRegeneration(double rate, STypeAttribute2nd currentAttr
 					currentVital = maxVital;
 				}
 
-				m_Qualities.SetAttribute2nd(currentAttrib, currentVital);
-
-				if (AsPlayer())
-				{
-					NotifyAttribute2ndStatUpdated(currentAttrib);
-				}
+				OnRegen(currentAttrib, currentVital);
 			}
 		}
 	}
@@ -3060,6 +3064,7 @@ void CWeenieObject::PostSpawn()
 		SetLocked(FALSE);
 	}
 
+	if (!m_Qualities._generator_queue)// Prevents generators that have a generator_registry from reinitializing
 	InitCreateGenerator();
 
 	double heartbeatInterval;
@@ -4279,6 +4284,12 @@ void CWeenieObject::TakeDamage(DamageEventData &damageData)
 	damageData.outputDamageFinal = (int)vitalStartValue - (int)vitalNewValue;
 	damageData.outputDamageFinalPercent = damageData.outputDamageFinal / (double)vitalMaxValue;
 
+	if (AsMonster())
+		{
+		// add to list of attackers
+			AsMonster()->UpdateDamageList(damageData);
+		}
+
 	if (vitalNewValue != vitalStartValue)
 	{
 		m_Qualities.SetAttribute2nd(vitalAffected, vitalNewValue);
@@ -4645,6 +4656,12 @@ void CWeenieObject::OnDealtDamage(DamageEventData &data)
 		{
 		}
 	}
+}
+
+void CWeenieObject::OnRegen(STypeAttribute2nd currentAttrib, int newAmount)
+{
+
+		m_Qualities.SetAttribute2nd(currentAttrib, newAmount);
 }
 
 bool CWeenieObject::IsContainedWithinViewable(DWORD object_id)

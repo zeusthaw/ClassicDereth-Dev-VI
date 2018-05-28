@@ -43,7 +43,17 @@ public:
 	virtual void OnMotionDone(DWORD motion, BOOL success) override;
 	virtual void OnDeath(DWORD killer_id) override;
 	virtual void OnDealtDamage(DamageEventData &damageData) override;
+
+	std::map<DWORD, int> m_aDamageSources;
 	virtual void OnTookDamage(DamageEventData &damageData) override;
+	void UpdateDamageList(DamageEventData & damageData);
+	//void UpdateDamageList(DamageEventData &damageData);
+	//virtual void OnRegen(STypeAttribute2nd currentAttrib, int newAmount) override;
+
+	//virtual void GivePerksForKill(CWeenieObject *pKilled) override;
+
+	void OnRegen(STypeAttribute2nd currentAttrib, int newAmount);
+
 	virtual void OnIdentifyAttempted(CWeenieObject *other) override;
 	virtual void OnResistSpell(CWeenieObject *attacker) override;
 	virtual void OnEvadeAttack(CWeenieObject *attacker) override;
@@ -69,11 +79,12 @@ public:
 	virtual float GetEffectiveArmorLevel(DamageEventData &damageData, bool bIgnoreMagicArmor) override;
 
 	virtual void HandleAggro(CWeenieObject *attacker) override;
-	
+
 	void DropAllLoot(CCorpseWeenie *pCorpse);
 	virtual void GenerateDeathLoot(CCorpseWeenie *pCorpse);
 
 	virtual BOOL DoCollision(const class ObjCollisionProfile &prof);
+	//virtual int AdjustHealth(int amount) override;
 
 	CCorpseWeenie *CreateCorpse(bool visible = true);
 
@@ -91,10 +102,10 @@ public:
 	DWORD m_ChargingAttackTarget = 0;
 	DWORD m_ChargingAttackHeight = false;
 	float m_ChargingAttackPower = 0.0f;
-	float m_fChargeAttackStartTime = (float) INVALID_TIME;
+	float m_fChargeAttackStartTime = (float)INVALID_TIME;
 
 	unsigned int m_MeleeDamageBonus = 0;
-	
+
 	virtual void ChangeCombatMode(COMBAT_MODE mode, bool playerRequested) override;
 
 	class MonsterAIManager *m_MonsterAI = NULL;
@@ -128,7 +139,7 @@ public:
 	void FinishGiveItem(CContainerWeenie *targetContainer, CWeenieObject *sourceItem, DWORD amountToTransfer);
 
 private:
-	void CheckRegeneration(bool &bRegenerateNext, double &lastRegen, float regenRate, STypeAttribute2nd currentAttrib, STypeAttribute2nd maxAttrib);
+	//void CheckRegeneration(bool &bRegenerateNext, double &lastRegen, float regenRate, STypeAttribute2nd currentAttrib, STypeAttribute2nd maxAttrib);
 
 	bool m_bRegenHealthNext = false;
 	double m_fLastHealthRegen = 0.0;
@@ -150,14 +161,14 @@ private:
 class CBaelZharon : public CMonsterWeenie
 {
 public:
-	CBaelZharon();
+CBaelZharon();
 
-	BOOL CrazyThink();
+BOOL CrazyThink();
 };
 
 class CTargetDrudge : public CMonsterWeenie
 {
 public:
-	CTargetDrudge();
+CTargetDrudge();
 };
 */

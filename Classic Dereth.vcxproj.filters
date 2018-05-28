@@ -590,6 +590,12 @@
     </ClCompile>
     <ClCompile Include="Source\ManaStone.cpp">
       <Filter>Source Files\Objects\Weenie Types</Filter>
+	</ClCompile>
+	<ClCompile Include="Source\TradeManager.cpp">
+	  <Filter>Source Files\Object Capabilities</Filter>
+	</ClCompile>
+	<ClCompile Include="Source\EnumUtil.cpp">
+	  <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1193,6 +1199,12 @@
     <ClInclude Include="Lib\zlib\zconf.h">
       <Filter>Source Files\ZLib</Filter>
     </ClInclude>
+	<ClInclude Include="Source\TradeManager.h">
+	<Filter>Source Files\Object Capabilities</Filter>
+	</ClInclude>
+	<ClInclude Include="Source\EnumUtil.h">
+	<Filter>Source Files</Filter>
+	</ClInclude>
     <ClInclude Include="Lib\zlib\zlib.h">
       <Filter>Source Files\ZLib</Filter>
     </ClInclude>

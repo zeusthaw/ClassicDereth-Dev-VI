@@ -29,32 +29,19 @@ int GetManaCost(int skill, int difficulty, int manaCost, int manaConversion)
 	if (!manaConversion)
 		return manaCost;
 
-	//	A mana conversion skill check is made at 25 diff per level of
-	//	spell, and the cost of the spell is reduced if the skill check is
-	//	successful.The reduction is a random percentage from 0 to the
-	//	chance of your mana conversion skill check success rate.In other
-	//	words, if you have an 80 % chance of your mana conversion working
-	//	on a spell, then 20 % of the time you will save nothing, and the
-	//	other 80 % you will save between 0 and 80 % of the mana.Obviously,
-	//	lower level spells will succeed much better, because you will have
-	//	nearly a 100 % chance of conversion success.This is not a skill a
-	//	mage should neglect, but because it tapers off, it probably should
-	//	not be specialized.Unfortunately, a mana conversion of 300 is
-	//	not much worse than 350.
+	double conversionFactor = min(1.0, (double)difficulty / (double)manaConversion);
 
-	int manaConversionDifficulty = round((((float)difficulty / 50.0) + 1) * 25.0);
+	int baseManaCost = round(conversionFactor * manaCost);
 
-	double chance = GetSkillChance(manaConversion, manaConversionDifficulty);
-	
-	if (Random::RollDice(0.0, 1.0) > chance)
+	if (conversionFactor < 1.0)
 	{
-		// fail conversion, full cost
-		return manaCost;
+	conversionFactor = Random::RollDice(0.0, conversionFactor);
+
+	if (conversionFactor == 0.0)
+	{
+		return 1;
 	}
-
-	// roll again to select conversion amount
-	double conversionFactor = 1.0 - Random::RollDice(0.0, chance);
-
+	}
 	return (int)(manaCost * conversionFactor);
 }
 

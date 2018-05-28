@@ -456,6 +456,7 @@
   <ItemGroup>
     <ClCompile Include="Source\BindStone.cpp" />
 	<ClCompile Include="Source\ManaStone.cpp" />
+	<ClCompile Include="Source\EnumUtil.cpp" />
     <ClCompile Include="Source\PhatSDK\Support\CombatFormulas.cpp" />
     <ClCompile Include="Source\PhatSDK\Support\Random.cpp" />
     <ClCompile Include="Source\PhatSDK\Support\RandomRange.cpp" />
@@ -639,8 +640,10 @@
     <ClCompile Include="Source\WeenieObject.cpp" />
     <ClCompile Include="Source\World.cpp" />
     <ClCompile Include="Source\WorldLandBlock.cpp" />
+	<ClCompile Include="Source\TradeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\EnumUtil.h" />
     <ClInclude Include="Source\BindStone.h" />
 	<ClInclude Include="Source\ManaStone.h" />
     <ClInclude Include="Source\PhatSDK\Support\CombatFormulas.h" />
@@ -843,6 +846,7 @@
     <ClInclude Include="Source\WorldLandBlock.h" />
     <ClInclude Include="Lib\zlib\zconf.h" />
     <ClInclude Include="Lib\zlib\zlib.h" />
+	<ClInclude Include="Source\TradeManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource\client.ico" />

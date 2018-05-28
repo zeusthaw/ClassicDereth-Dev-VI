@@ -4,9 +4,11 @@
 #include "UseManager.h"
 #include "Monster.h"
 #include "Packable.h"
+#include "TradeManager.h"
 
 class CClient;
 class BinaryWriter;
+class TradeManager;
 
 class SalvageResult : public PackObj
 {
@@ -41,7 +43,7 @@ public:
 	virtual void OnDeathAnimComplete() override;
 	virtual void OnDeath(DWORD killer_id) override;
 	virtual void OnMotionDone(DWORD motion, BOOL success) override;
-	
+	void OnRegen(STypeAttribute2nd currentAttrib, int newAmount);	
 	virtual void NotifyAttackerEvent(const char *name, unsigned int dmgType, float healthPercent, unsigned int heath, unsigned int crit, unsigned int attackConditions);
 	virtual void NotifyDefenderEvent(const char *name, unsigned int dmgType, float healthPercent, unsigned int health, BODY_PART_ENUM hitPart, unsigned int crit, unsigned int attackConditions);
 	virtual void NotifyKillerEvent(const char *text);
@@ -103,6 +105,9 @@ public:
 	virtual bool IsDead() override;
 
 	virtual DWORD OnReceiveInventoryItem(CWeenieObject *source, CWeenieObject *item, DWORD desired_slot) override;
+	void SetLastHealthRequest(DWORD guid);
+	void RemoveLastHealthRequest();
+	void RefreshTargetHealth();
 
 	//cmoski -- remove last assessed item
 	void SetLastAssessed(DWORD guid);
@@ -173,6 +178,7 @@ public:
 	virtual void UpdateVitaeEnchantment();
 
 	virtual void BeginLogout() override;
+	virtual void OnLogout();
 	
 	bool IsLoggingOut() { return _logoutTime >= 0.0; }
 	bool IsRecalling() { return _recallTime >= 0.0; }
@@ -184,18 +190,40 @@ public:
 	CCorpseWeenie *_pendingCorpse = NULL;
 	DWORD GetAccountHouseId();
 
+	TradeManager *GetTradeManager();
+	void SetTradeManager(TradeManager *tradeManager);
+	
+	virtual void CPlayerWeenie::ReleaseContainedItemRecursive(CWeenieObject *item) override;
+	
+	virtual void ChangeCombatMode(COMBAT_MODE mode, bool playerRequested) override;
+	
+	void UpdatePKActivity() { m_iPKActivity = Timer::cur_time + 20; }
+	bool CheckPKActivity() { return m_iPKActivity > Timer::cur_time; }
+	void ClearPKActivity() { m_iPKActivity = Timer::cur_time; }
+
 protected:
 	CClient *m_pClient;
+
+	DWORD m_LastHealthRequest;
 
 	double m_fNextMakeAwareCacheFlush = 0.0;
 	bool m_bAttackable = true;
 
 	double m_NextSave = 0.0;
 
+	double m_NextHealthUpdate = 0.0;
+
 	double _logoutTime = -1.0;
+	double _beginLogoutTime = -1.0;
 	double _recallTime = -1.0;
 	Position _recallPos;
 	bool _isFirstPortalInSession = true;
+
+	TradeManager *m_pTradeManager = NULL;
+	double m_fNextTradeCheck = 0;
+	
+private:
+		int m_iPKActivity = 0;
 };
 
 class CWandSpellUseEvent : public CUseEventData
@@ -209,6 +237,8 @@ public:
 	CWandSpellUseEvent(DWORD wandId, DWORD targetId);
 	virtual void OnReadyToUse() override;
 	virtual void OnUseAnimSuccess(DWORD motion) override;
+	//virtual void Cancel(DWORD error = 0) override;
+	//virtual void Done(DWORD error = 0) override;
 };
 
 class CLifestoneRecallUseEvent : public CUseEventData

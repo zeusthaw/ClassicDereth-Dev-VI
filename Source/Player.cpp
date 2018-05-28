@@ -21,8 +21,10 @@
 #include "SpellcastingManager.h"
 #include "Corpse.h"
 #include "House.h"
+#include "Util.h"
 
 #define PLAYER_SAVE_INTERVAL 180.0
+#define PLAYER_HEALTH_POLL_INTERVAL 5.0
 
 //Merged from GDLE2 Team https://gitlab.com/Scribble/gdlenhanced/commit/0b2125d1d41cf582b274bf157485fcd5f1183170 //
 DEFINE_PACK(SalvageResult)
@@ -79,6 +81,11 @@ CPlayerWeenie::~CPlayerWeenie()
 {
 	LeaveFellowship();
 
+	if (m_pTradeManager)
+		{
+		m_pTradeManager->CloseTrade(this);
+		m_pTradeManager = NULL;
+		}
 	CClientEvents *pEvents;
 	if (m_pClient && (pEvents = m_pClient->GetEvents()))
 	{
@@ -140,11 +147,23 @@ void CPlayerWeenie::BeginLogout()
 	if (IsLoggingOut())
 		return;
 
-	_logoutTime = Timer::cur_time + 5.0;
+	_beginLogoutTime = max(Timer::cur_time, m_iPKActivity);
+	_logoutTime = _beginLogoutTime + 5.0;
 
 	ChangeCombatMode(NONCOMBAT_COMBAT_MODE, false);
 	LeaveFellowship();
+
+	if (m_pTradeManager)
+	{
+			m_pTradeManager->CloseTrade(this);
+			m_pTradeManager = NULL;
+	}
+
 	StopCompletely(0);
+}
+
+void CPlayerWeenie::OnLogout()
+{
 	DoForcedMotion(Motion_LogOut);
 	Save();
 }
@@ -194,6 +213,13 @@ void CPlayerWeenie::Tick()
 		m_fNextMakeAwareCacheFlush = Timer::cur_time + 60.0;
 	}
 
+	if (IsLoggingOut() && _beginLogoutTime <= Timer::cur_time)
+	{
+		OnLogout();
+
+		_beginLogoutTime = Timer::cur_time + 999999;
+	}
+
 	if (IsLoggingOut() && _logoutTime <= Timer::cur_time)
 	{
 		// time to logout
@@ -210,8 +236,30 @@ void CPlayerWeenie::Tick()
 		_recallTime = -1.0;
 		Movement_Teleport(_recallPos, false);
 	}
-}
 
+
+	if (m_pTradeManager && m_fNextTradeCheck <= Timer::cur_time)
+	{
+		m_pTradeManager->CheckDistance();
+		m_fNextTradeCheck = Timer::cur_time + 2;
+	}
+
+	if (m_NextHealthUpdate <= Timer::cur_time)
+	{
+		CWeenieObject *pTarget = g_pWorld->FindWithinPVS(this, m_LastHealthRequest);
+		if (pTarget)
+		{
+			SendNetMessage(HealthUpdate((CMonsterWeenie *)pTarget), PRIVATE_MSG, TRUE, TRUE);
+
+			m_NextHealthUpdate = Timer::cur_time + PLAYER_HEALTH_POLL_INTERVAL;
+		}
+		else
+		{
+			RemoveLastHealthRequest();
+		}
+
+	}
+}
 bool CPlayerWeenie::IsBusy()
 {
 	if (IsRecalling() || IsLoggingOut() || CWeenieObject::IsBusy())
@@ -336,6 +384,25 @@ void CPlayerWeenie::ExitPortal()
 		_phys_obj->ExitPortal();
 }
 
+void CPlayerWeenie::SetLastHealthRequest(DWORD guid)
+{
+		m_LastHealthRequest = guid;
+
+		m_NextHealthUpdate = Timer::cur_time + PLAYER_HEALTH_POLL_INTERVAL;
+}
+
+void CPlayerWeenie::RemoveLastHealthRequest()
+{
+m_LastHealthRequest = 0;
+
+// nothing targeted so we don't want to send messages
+m_NextHealthUpdate = Timer::cur_time + 86400.0;
+}
+
+void CPlayerWeenie::RefreshTargetHealth()
+{
+m_NextHealthUpdate = 0;
+}
 void CPlayerWeenie::SetLastAssessed(DWORD guid)
 {
 	m_LastAssessed = guid;
@@ -368,6 +435,8 @@ void CPlayerWeenie::OnDeathAnimComplete()
 
 		if (!g_pConfig->HardcoreMode())
 		{
+			//clear damage sources on death
+			m_aDamageSources.clear();
 			//if (IsDead())
 			Revive();
 		}
@@ -752,6 +821,14 @@ void CPlayerWeenie::OnMotionDone(DWORD motion, BOOL success)
 	//}
 }
 
+void CPlayerWeenie::OnRegen(STypeAttribute2nd currentAttrib, int newAmount)
+{
+		CMonsterWeenie::OnRegen(currentAttrib, newAmount);
+
+		NotifyAttribute2ndStatUpdated(currentAttrib);
+}
+
+
 void CPlayerWeenie::NotifyAttackerEvent(const char *name, unsigned int dmgType, float healthPercent, unsigned int health, unsigned int crit, unsigned int attackConditions)
 {
 	// when the player deals damage
@@ -764,6 +841,9 @@ void CPlayerWeenie::NotifyAttackerEvent(const char *name, unsigned int dmgType, 
 	msg.Write<DWORD>(crit);
 	msg.Write<DWORD64>(attackConditions);
 	SendNetMessage(&msg, PRIVATE_MSG, TRUE, FALSE);
+
+	// Update health of monster ASAP
+	RefreshTargetHealth();
 }
 
 void CPlayerWeenie::NotifyDefenderEvent(const char *name, unsigned int dmgType, float healthPercent, unsigned int health, BODY_PART_ENUM hitPart, unsigned int crit, unsigned int attackConditions)
@@ -2385,6 +2465,10 @@ void CPlayerWeenie::PerformUseModificationScript(DWORD scriptId, CCraftOperation
 	case 0x38000043: //leather
 		pTarget->m_Qualities.SetBool(RETAINED_BOOL, 1);
 		break;
+	case 0x38000044: //green garnet
+		pTarget->m_Qualities.SetFloat(ELEMENTAL_DAMAGE_MOD_FLOAT, pTarget->InqFloatQuality(ELEMENTAL_DAMAGE_MOD_FLOAT, 0, TRUE) + 0.01);
+		pTarget->m_Qualities.SetInt(NUM_TIMES_TINKERED_INT, pTarget->InqIntQuality(NUM_TIMES_TINKERED_INT, 0, TRUE) + 1);
+		break;
 	case 0x38000046: //fetish of the dark idol
 		pTarget->AddImbueEffect(ImbuedEffectType::IgnoreSomeMagicProjectileDamage_ImbuedEffectType);
 		break;
@@ -3635,4 +3719,27 @@ DWORD CPlayerWeenie::GetAccountHouseId()
 	}
 
 	return 0;
+}
+
+TradeManager* CPlayerWeenie::GetTradeManager()
+{
+		return m_pTradeManager;
+}
+
+void CPlayerWeenie::SetTradeManager(TradeManager * tradeManager)
+{
+		m_pTradeManager = tradeManager;
+}
+void CPlayerWeenie::ReleaseContainedItemRecursive(CWeenieObject *item)
+{
+		CContainerWeenie::ReleaseContainedItemRecursive(item);
+}
+void CPlayerWeenie::ChangeCombatMode(COMBAT_MODE mode, bool playerRequested)
+{
+		CMonsterWeenie::ChangeCombatMode(mode, playerRequested);
+
+		if (m_pTradeManager && mode != NONCOMBAT_COMBAT_MODE)
+		{
+				m_pTradeManager->CloseTrade(this, 2); // EnteredCombat
+		}
 }
