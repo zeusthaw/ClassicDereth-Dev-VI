@@ -163,6 +163,7 @@ void from_json(const nlohmann::json &reader, CWieldTier &output)
 	output.minElementalDamageBonus = reader.value("minElementalDamageBonus", 0);
 	output.maxElementalDamageBonus = reader.value("maxElementalDamageBonus", 0);
 
+	output.minManaConversionBonus = reader.value("minManaConversionBonus", 0.0f);
 	output.maxManaConversionBonus = reader.value("maxManaConversionBonus", 0.0f);
 	output.minElementalDamageMod = reader.value("minElementalDamageMod", 0.0f);
 	output.maxElementalDamageMod = reader.value("maxElementalDamageMod", 0.0f);
@@ -1941,6 +1942,19 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 			break;
 		}
 
+		/* Setting up mana c on items
+		 * This is removed from the condition if the weapon is elemental
+		 * Should actually see some mana c on other items
+		 * - Drissical
+		 */
+		if (wieldTier->maxManaConversionBonus > 0 && getRandomNumberExclusive(100) < wieldTier->manaConversionBonusChance * 100 * (1 + (creationInfo.qualityModifier * 2)))
+		{
+			double manaConversionMod = round(getRandomDouble(wieldTier->minManaConversionBonus / 100, wieldTier->maxManaConversionBonus / 100, eRandomFormula::favorMid, 2, creationInfo.qualityModifier), 2);
+			if (manaConversionMod > 0)
+				newItem->m_Qualities.SetFloat(MANA_CONVERSION_MOD_FLOAT, manaConversionMod);
+		}
+
+
 		if (!entry->elementalVariants.empty())
 		{
 			if (getRandomNumberExclusive(100) < wieldTier->elementalChance * 100)
@@ -1953,18 +1967,11 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 					return;
 
 				int elementalType;
-				weenieDefs->m_Qualities.InqInt(DAMAGE_TYPE_INT, elementalType, TRUE);
+				weenieDefs->m_Qualities.InqInt(DAMAGE_TYPE_INT, elementalType, true);
 
 				DWORD setup;
 				if (weenieDefs->m_Qualities.InqDataID(SETUP_DID, setup))
 					newItem->m_Qualities.SetDataID(SETUP_DID, setup);
-
-				if (wieldTier->maxManaConversionBonus > 0 && getRandomNumberExclusive(100) < wieldTier->manaConversionBonusChance * 100 * (1 + (creationInfo.qualityModifier * 2)))
-				{
-					double manaConversionMod = round(getRandomDouble(0, wieldTier->maxManaConversionBonus / 100, eRandomFormula::favorMid, 2, creationInfo.qualityModifier), 1);
-					if (manaConversionMod > 0)
-						newItem->m_Qualities.SetFloat(MANA_CONVERSION_MOD_FLOAT, manaConversionMod);
-				}
 
 				if (wieldTier->maxElementalDamageMod > 0)
 				{
@@ -2133,6 +2140,21 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 			}
 		}
 	}
+	/* Chance for non-wield items to drop with mana c. 
+	 * bonus added defender as well from GDLE
+	 * - Drissical
+	 */
+	else
+	{
+		double manaConversionnowield = round(getRandomDouble(0, 0.10), 2);
+		if (manaConversionnowield > 0)
+			newItem->m_Qualities.SetFloat(MANA_CONVERSION_MOD_FLOAT, manaConversionnowield);
+
+		double meleeDefensenowield = round(getRandomDouble(1.0, 1.15), 2);
+		if (meleeDefensenowield > 0)
+			newItem->m_Qualities.SetFloat(WEAPON_DEFENSE_FLOAT, meleeDefensenowield);
+	}
+
 }
 
 void CTreasureFactory::MutateArmor(CWeenieObject *newItem, CWieldTier *wieldTier, sItemCreationInfo &creationInfo, CTreasureTier *tier, CTreasureProfileCategory *category, CItemTreasureProfileEntry *entry)
