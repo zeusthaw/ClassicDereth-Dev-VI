@@ -32,6 +32,7 @@ public:
 	virtual class CPlayerWeenie *AsPlayer() { return this; }
 
 	virtual bool IsAdvocate() override;
+
 	virtual bool IsSentinel() override;
 	virtual bool IsAdmin() override;
 	int GetAccessLevel();
@@ -93,6 +94,8 @@ public:
 	virtual void MakeAware(CWeenieObject *, bool bForceUpdate = false);
 
 	void AddSpellByID(DWORD id);
+
+	bool IsChunky();
 
 	void DetachClient();
 

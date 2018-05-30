@@ -119,6 +119,11 @@ void CPlayerWeenie::AddSpellByID(DWORD id)
 	SendNetMessage(AddSpellToSpellbook.GetData(), AddSpellToSpellbook.GetSize(), EVENT_MSG, true);
 }
 
+bool CPlayerWeenie::IsChunky()
+{
+	return GetAccessLevel() >= DONOR_ACCESS;
+}
+
 bool CPlayerWeenie::IsAdvocate()
 {
 	return GetAccessLevel() >= ADVOCATE_ACCESS;
@@ -3342,7 +3347,14 @@ void CPlayerWeenie::SetLoginPlayerQualities()
 		}
 	}
 
-
+	if (IsChunky())
+	{
+		m_Qualities.SetFloat(DEFAULT_SCALE_FLOAT, 0.5);
+	}
+	else
+	{
+		m_Qualities.SetFloat(DEFAULT_SCALE_FLOAT, 1);
+	}
 
 	if (IsAdvocate())
 	{
@@ -3371,6 +3383,8 @@ void CPlayerWeenie::SetLoginPlayerQualities()
 
 		m_Qualities.SetBool(SPELL_COMPONENTS_REQUIRED_BOOL, FALSE);
 		m_Qualities.SetInt(BONDED_INT, 1); //do not drop items on death
+		//m_Qualities.SetFloat(DEFAULT_SCALE_FLOAT, 0.5);// 
+
 	}
 	else
 	{
