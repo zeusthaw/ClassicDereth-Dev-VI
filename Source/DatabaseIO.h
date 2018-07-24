@@ -54,6 +54,7 @@ public:
 	bool CreateAccount(const char *username, const char *password, int *pError, const char *ipaddress);
 
 	std::list<CharacterDesc_t> GetCharacterList(unsigned int accountid);
+	CharacterDesc_t GetCharacterInfo(unsigned int weenie_id);
 	bool CreateCharacter(unsigned int account_id, unsigned int weenie_id, const char *name);
 	bool DeleteCharacter(unsigned int weenie_id);
 	bool SetCharacterInstanceTS(unsigned int weenie_id, unsigned int instance_ts);
@@ -67,7 +68,7 @@ public:
 	bool IsPlayerCharacter(unsigned int weenie_id);
 	DWORD GetPlayerCharacterId(const char *name);
 	std::string GetPlayerCharacterName(DWORD weenie_id);
-	DWORD GeAccountHouseId(unsigned int accountid);
+	DWORD GetAccountHouseId(unsigned int accountid);
 
 	bool CreateOrUpdateWeenie(unsigned int weenie_id, unsigned int top_level_object_id, unsigned int block_id, void *data, unsigned int data_length);
 	bool GetWeenie(unsigned int weenie_id, unsigned int *top_level_object_id, unsigned int *block_id, void **data, unsigned long *data_length);

@@ -1342,11 +1342,11 @@ SERVER_COMMAND(kick, "<player name>", "Kicks the specified player.", SENTINEL_AC
 
 	if (pPlayer)
 	{
-		LOG(Command, Normal, "\"%s\" is using the kick command.\n", pPlayer->GetName().c_str());
+		SERVER_INFO << pPlayer->GetName().c_str() << "is using the kick command.";
 	}
 	else
 	{
-		LOG(Command, Normal, "Server is using the kick command.\n");
+		SERVER_INFO << "Server is using the kick command.";
 	}
 
 	CPlayerWeenie *pTarget = g_pWorld->FindPlayer(argv[0]);
@@ -2331,9 +2331,15 @@ CLIENT_COMMAND(player, "<command>", "Player commands.", BASIC_ACCESS)
 			if (pPlayer->IsSentinel())
 			{
 				const char *info = csprintf(
-					"Player Info:\nGUID: 0x%08X\nName: %s\nLocation: %08X %.1f %.1f %.1f",
-					pOther->GetID(), pOther->GetName().c_str(), pOther->GetLandcell(),
-					pOther->m_Position.frame.m_origin.x, pOther->m_Position.frame.m_origin.y, pOther->m_Position.frame.m_origin.z);
+					"Player Info:\nGUID: 0x%08X (Account: %s IP: %s)\nName: %s\nLocation: %08X\nX: %.1f\nY: %.1f\nZ: %.1f",
+					pOther->GetID(),
+					pOther->GetClient()->GetAccount(),
+					inet_ntoa(pOther->GetClient()->GetHostAddress()->sin_addr),
+					pOther->GetName().c_str(), 
+					pOther->GetLandcell(),
+					pOther->m_Position.frame.m_origin.x, 
+					pOther->m_Position.frame.m_origin.y, 
+					pOther->m_Position.frame.m_origin.z);
 
 				pPlayer->SendText(info, LTT_DEFAULT);
 			}
@@ -2355,10 +2361,13 @@ CLIENT_COMMAND(player, "<command>", "Player commands.", BASIC_ACCESS)
 
 			if (player_client->GetAccessLevel() >= SENTINEL_ACCESS)
 			{
-				playerList += csprintf("\n%s (Account: %s IP: %s)",
+				playerList += csprintf("\n%s (Account: %s IP: %s)\nX: %.1f\nY: %.1f\nZ: %.1f",
 					entry.second->GetName().c_str(),
 					entry.second->GetClient()->GetAccount(),
-					inet_ntoa(entry.second->GetClient()->GetHostAddress()->sin_addr));
+					inet_ntoa(entry.second->GetClient()->GetHostAddress()->sin_addr),
+					entry.second->m_Position.frame.m_origin.x,
+					entry.second->m_Position.frame.m_origin.y,
+					entry.second->m_Position.frame.m_origin.z);
 			}
 			else
 			{
@@ -4302,7 +4311,7 @@ bool CommandBase::Execute(char *command, CClient *client)
 			{
 				if (!pCommand->source || player_weenie)
 				{
-					LOG(Temp, Normal, "EXECUTING CLIENT COMMAND %s FROM %s\n", command, client->GetDescription());
+					SERVER_INFO << "EXECUTING CLIENT COMMAND" << command << "FROM" << client->GetDescription();
 
 					// run the command callback
 					if ((*pCommand->func)(client, player_weenie, player_physobj, argv + 1, argc - 1))

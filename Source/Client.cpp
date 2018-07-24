@@ -186,7 +186,7 @@ void CClient::EnterWorld()
 	DWORD EnterWorld = 0xF7DF; // 0xF7C7;
 
 	SendNetMessage(&EnterWorld, sizeof(DWORD), 9);
-	LOG(Client, Normal, "Client #%u is entering the world.\n", m_vars.slot);
+	SERVER_INFO << "Client" << m_vars.slot << "is entering the world.";
 
 	m_vars.bInWorld = TRUE;
 
@@ -209,7 +209,7 @@ void CClient::ExitWorld()
 {
 	DWORD ExitWorld = 0xF653;
 	SendNetMessage(&ExitWorld, sizeof(DWORD), PRIVATE_MSG);
-	LOG(Client, Normal, "Client #%u is exiting the world.\n", m_vars.slot);
+	SERVER_INFO << "Client" << m_vars.slot << "is exiting the world.";
 
 	m_pPC->ResetEvent();
 
@@ -238,7 +238,7 @@ void CClient::SendNetMessage(void *data, DWORD length, WORD group, BOOL game_eve
 
 	if (g_bDebugToggle)
 	{
-		LOG(Network, Normal, "%.03f Sending response (group %u) to %s:\n", g_pGlobals->Time(), group, (GetEvents() && GetEvents()->GetPlayer()) ? GetEvents()->GetPlayer()->GetName().c_str() : "[unknown]");
+		DEBUG_DATA << "Sending response(group" << group << "to" << (GetEvents() && GetEvents()->GetPlayer()) ? GetEvents()->GetPlayer()->GetName().c_str() : "[unknown]";
 		LOG_BYTES(Network, Normal, data, length);
 	}
 
@@ -688,7 +688,7 @@ void CClient::CreateCharacter(BinaryReader *pReader)
 			}
 			else
 			{
-				LOG(Client, Error, "Failed to create character.\n");
+				SERVER_ERROR << "Failed to create character.";
 				BinaryWriter response;
 				response.Write<DWORD>(0xF643);
 				response.Write<DWORD>(CG_VERIFICATION_RESPONSE_DATABASE_DOWN); // update this error number
@@ -697,7 +697,7 @@ void CClient::CreateCharacter(BinaryReader *pReader)
 		}
 		else
 		{		
-			LOG(Client, Normal, "Character name already exists.\n");
+			SERVER_INFO << "Character name already exists.";
 			BinaryWriter response;
 			response.Write<DWORD>(0xF643);
 			response.Write<DWORD>(CG_VERIFICATION_RESPONSE_NAME_IN_USE); // name already exists
@@ -1009,7 +1009,7 @@ void CClient::SendLandblock(DWORD dwFileID)
 
 	if ((dwFileID & 0xFFFF) != 0xFFFF)
 	{
-		LOG(Client, Warning, "Client requested Landblock 0x%08X - should end pReader 0xFFFF\n", dwFileID);
+		SERVER_WARN << "Client requested Landblock" << dwFileID << "-should end pReader 0xFFFF";
 	}
 
 	if (pLandData)
@@ -1026,7 +1026,7 @@ void CClient::SendLandblock(DWORD dwFileID)
 
 		if (Z_OK != compress2(pbPackageData, &dwPackageSize, pbFileData, dwFileSize, Z_BEST_COMPRESSION))
 		{
-			LOG(Client, Error, "Error compressing LandBlock package!\n");
+			SERVER_ERROR << "Error compressing LandBlock package!";
 		}
 
 		BlockPackage.Write<DWORD>(1); //the resource type: 1 for 0xFFFF, 2 for 0xFFFE, 3 for 0x100
@@ -1052,7 +1052,7 @@ void CClient::SendLandblockInfo(DWORD dwFileID)
 {
 	if ((dwFileID & 0xFFFF) != 0xFFFE)
 	{
-		LOG(Client, Warning, "Client requested LandblockInfo 0x%08X - should end pReader 0xFFFE\n", dwFileID);
+		SERVER_WARN << "Client requested LandblockInfo" << dwFileID << "should end pReader 0xFFFE";
 		return;
 	}
 
@@ -1075,7 +1075,7 @@ void CClient::SendLandblockInfo(DWORD dwFileID)
 
 		if (Z_OK != compress2(pbPackageData, &dwPackageSize, pbFileData, dwFileSize, Z_BEST_COMPRESSION))
 		{
-			LOG(Client, Error, "Error compressing LandBlockInfo package!\n");
+			SERVER_ERROR << "Error compressing LandBlock package!";
 		}
 
 		BlockInfoPackage.Write<DWORD>(2); // 1 for 0xFFFF, 2 for 0xFFFE, 3 for 0x100
@@ -1125,7 +1125,7 @@ void CClient::SendLandcell(DWORD dwFileID)
 		if (Z_OK != compress2(pbPackageData, &dwPackageSize, pbFileData, dwFileSize, Z_BEST_COMPRESSION))
 		{
 			// These are CEnvCell if I recall correctly
-			LOG(Client, Error, "Error compressing landcell package!\n");
+			SERVER_ERROR << "Error compressing LandBlockInfo package!";
 		}
 
 		CellPackage.Write<DWORD>(3); // 1 for 0xFFFF, 2 for 0xFFFE, 3 for 0x100
@@ -1156,7 +1156,7 @@ void CClient::ProcessMessage(BYTE *data, DWORD length, WORD group)
 {
 	if (g_bDebugToggle)
 	{
-		LOG(Network, Normal, "%.03f Received response (group %u):\n", g_pGlobals->Time(), group);
+		SERVER_ERROR << "%.03f Received response (group %u):\n", g_pGlobals->Time(), group;
 		LOG_BYTES(Network, Normal, data, length);
 	}
 
@@ -1170,7 +1170,7 @@ void CClient::ProcessMessage(BYTE *data, DWORD length, WORD group)
 
 	if (in.GetLastError())
 	{
-		LOG(Client, Warning, "Error processing response.\n");
+		SERVER_ERROR << "Error compressing landcell package!";
 		return;
 	}
 	switch (dwMessageCode)

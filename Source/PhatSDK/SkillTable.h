@@ -60,6 +60,8 @@ public:
 	DECLARE_PACKABLE()
 	DECLARE_LEGACY_PACK_MIGRATOR()
 
+	static STypeSkill OldToNewSkill(STypeSkill old);
+
 	const SkillBase *GetSkillBaseRaw(STypeSkill key); // custom
 	const SkillBase *GetSkillBase(STypeSkill key);
 
