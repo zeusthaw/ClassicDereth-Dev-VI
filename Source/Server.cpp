@@ -24,7 +24,10 @@
 #include "GameEventManager.h"
 #include "House.h"
 #include "easylogging++.h"
+<<<<<<< HEAD
 #include "..\RecipeFactory.h"
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 
 // should all be encapsulated realistically, but we aren't going to multi-instance the server...
 CDatabase *g_pDB = NULL;

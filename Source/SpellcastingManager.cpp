@@ -79,6 +79,7 @@ bool CSpellcastingManager::ResolveSpellBeingCasted()
 	// item enchantment
 	if (m_SpellCastData.equipped && (m_SpellCastData.spell->_school == 3) && (m_SpellCastData.spell->_bitfield & Beneficial_SpellIndex))
 	{
+<<<<<<< HEAD
 		if (m_SpellCastData.spell->_category == 188 || m_SpellCastData.spell->_category == 186 || m_SpellCastData.spell->_category == 184 || m_SpellCastData.spell->_category == 182 || m_SpellCastData.spell->_category == 178 || m_SpellCastData.spell->_category == 176 || m_SpellCastData.spell->_category == 174 || m_SpellCastData.spell->_category == 172 || m_SpellCastData.spell->_category == 170 || m_SpellCastData.spell->_category == 160 || m_SpellCastData.spell->_category == 152 || m_SpellCastData.spell->_category == 154 || m_SpellCastData.spell->_category == 156 || m_SpellCastData.spell->_category == 158 || m_SpellCastData.spell->_category == 195 || m_SpellCastData.spell->_category == 695)
 		{
 			CWeenieObject *pOther = g_pWorld->FindObject(m_LastUsedBy))
@@ -87,6 +88,14 @@ bool CSpellcastingManager::ResolveSpellBeingCasted()
 		}
 		else {
 			m_SpellCastData.target_id = m_SpellCastData.target_id;
+=======
+		if (m_SpellCastData.spell->_category == 152 || m_SpellCastData.spell->_category == 154 || m_SpellCastData.spell->_category == 156 || m_SpellCastData.spell->_category == 158 || m_SpellCastData.spell->_category == 195 || m_SpellCastData.spell->_category == 695)
+		{
+			m_SpellCastData.target_id = m_SpellCastData.source_id;
+		}
+		else {
+			m_SpellCastData.target_id = m_SpellCastData.caster_id;
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 		}
 	}
 	return true;
@@ -853,7 +862,11 @@ int CSpellcastingManager::LaunchSpellEffect(bool bFizzled)
 			SpellComponentTable *pSpellComponents = MagicSystem::GetSpellComponentTable();
 			float spellComponentLossMod = m_SpellCastData.spell->_component_loss;
 			if (bFizzled)
+<<<<<<< HEAD
 				spellComponentLossMod *= 1.0; //made up value: 25% extra chance of burning components on fizzles.
+=======
+				spellComponentLossMod *= 1.5; //made up value: 50% extra chance of burning components on fizzles.
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 
 			if (pSpellComponents)
 			{

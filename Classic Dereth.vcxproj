@@ -645,6 +645,10 @@
     <ClCompile Include="Source\TradeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
+=======
+    <ClInclude Include="..\..\..\..\..\Downloads\gdlenhanced-AdminDBtool\Source\easylogging++.h" />
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
     <ClInclude Include="Source\easylogging++.h" />
     <ClInclude Include="Source\EnumUtil.h" />
     <ClInclude Include="Source\BindStone.h" />

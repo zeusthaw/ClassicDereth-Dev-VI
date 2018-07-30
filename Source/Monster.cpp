@@ -707,6 +707,7 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 		sourceItem->m_Qualities.SetFloat(SLAYER_DAMAGE_BONUS_FLOAT, 1.4);
 	}
 
+<<<<<<< HEAD
 	//Spadone Fix
 	DWORD spadonePhysical;
 	DWORD spadoneElectric;
@@ -974,6 +975,8 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 
 
 
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 	//if (!sourceItem->HasOwner())
 	//{
 	if (CWeenieObject *generator = g_pWorld->FindObject(sourceItem->InqIIDQuality(GENERATOR_IID, 0)))
@@ -1874,12 +1877,21 @@ void CMonsterWeenie::OnMotionDone(DWORD motion, BOOL success)
 							if (statChange)
 							{
 								if (statType == HEALTH_ATTRIBUTE_2ND)
+<<<<<<< HEAD
 								{
 									AdjustHealth(statChange);
 									NotifyAttribute2ndStatUpdated(statType);
 								}
 								else
 								{
+=======
+								{
+									AdjustHealth(statChange);
+									NotifyAttribute2ndStatUpdated(statType);
+								}
+								else
+								{
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 									m_Qualities.SetAttribute2nd(statType, newStatValue);
 									NotifyAttribute2ndStatUpdated(statType);
 								}
@@ -2190,6 +2202,7 @@ void CMonsterWeenie::ChangeCombatMode(COMBAT_MODE mode, bool playerRequested)
 			}
 
 			newCombatMode = COMBAT_MODE::MELEE_COMBAT_MODE;
+<<<<<<< HEAD
 			break;
 		}
 
@@ -2199,6 +2212,17 @@ void CMonsterWeenie::ChangeCombatMode(COMBAT_MODE mode, bool playerRequested)
 			break;
 		}
 
+=======
+			break;
+		}
+
+		case TwoHanded_CombatStyle:
+			new_motion_style = Motion_2HandedSwordCombat;
+			newCombatMode = COMBAT_MODE::MELEE_COMBAT_MODE;
+			break;
+		}
+
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 		break;
 	}
 

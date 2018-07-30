@@ -183,7 +183,10 @@
     <ClCompile Include="Source\WorldLandBlock.cpp" />
     <ClCompile Include="Source\TradeManager.cpp" />
     <ClCompile Include="Source\easylogging++.cpp" />
+<<<<<<< HEAD
     <ClCompile Include="Source\RecipeFactory.cpp" />
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\EnumUtil.h" />
@@ -390,8 +393,13 @@
     <ClInclude Include="Lib\zlib\zconf.h" />
     <ClInclude Include="Lib\zlib\zlib.h" />
     <ClInclude Include="Source\TradeManager.h" />
+<<<<<<< HEAD
     <ClInclude Include="Source\easylogging++.h" />
     <ClInclude Include="Source\RecipeFactory.h" />
+=======
+    <ClInclude Include="..\..\..\..\..\Downloads\gdlenhanced-AdminDBtool\Source\easylogging++.h" />
+    <ClInclude Include="Source\easylogging++.h" />
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource\PhatAC.rc" />

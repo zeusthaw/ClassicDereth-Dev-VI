@@ -261,6 +261,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			wielded->m_Qualities.SetFloat(SLAYER_DAMAGE_BONUS_FLOAT, 1.4);
 		}
 
+<<<<<<< HEAD
 		//Elemental Yumi Bow Fix
 		DWORD yumiSlash;
 		DWORD yumiPierce;
@@ -418,6 +419,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		}
 
 
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 		//Spadone Fix
 		DWORD spadonePhysical;
 		DWORD spadoneElectric;
@@ -460,6 +463,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			wielded->m_Qualities.SetString(NAME_STRING, "Flame Spadone");//Re-Write the name to match Item//
 		}
 
+<<<<<<< HEAD
 		//  Elemental Staff Fix  //
 		int staffSlash;
 		int staffPierce;
@@ -527,6 +531,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			wielded->m_Qualities.SetDataID(SETUP_DID, 0x0200184D);
 		}
 
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 	}
 
 	for (auto item : m_pPlayer->m_Items)
@@ -544,6 +550,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			item->m_Qualities.RemoveDataID(SPELL_DID);
 			item->m_Qualities.SetFloat(SLAYER_DAMAGE_BONUS_FLOAT, 1.4);
 		}
+<<<<<<< HEAD
 
 
 		//Elemental Yumi Bow Fix
@@ -703,6 +710,9 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		}
 
 		//Spadone Fix//
+=======
+		//Spadone Fix
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 		DWORD spadonePhysical; 
 		DWORD spadoneElectric; 
 		DWORD spadoneAcid;  
@@ -743,6 +753,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FIRE);//Elemental UI Effect//
 			item->m_Qualities.SetString(NAME_STRING, "Flame Spadone");//Re-Write the name to match Item//
 		}
+<<<<<<< HEAD
 
 		//  Elemental Staff Fix  //
 		int staffSlash;
@@ -811,6 +822,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			item->m_Qualities.SetDataID(SETUP_DID, 0x0200184D);
 		}
 
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 	}
 
 	for (auto pack : m_pPlayer->m_Packs)
@@ -836,6 +849,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 					item->m_Qualities.SetFloat(SLAYER_DAMAGE_BONUS_FLOAT, 1.4);
 				}
 
+<<<<<<< HEAD
 				//Elemental Yumi XBow Fix
 				DWORD yumiXSlash;
 				DWORD yumiXPierce;
@@ -1109,6 +1123,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				}
 				*/
 
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 				//Spadone Fix
 				DWORD spadonePhysical;
 				DWORD spadoneElectric;
@@ -1150,6 +1166,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FIRE);//Elemental UI Effect//
 					item->m_Qualities.SetString(NAME_STRING, "Flame Spadone");//Re-Write the name to match Item//
 				}
+<<<<<<< HEAD
 
 				//  Elemental Staff Fix  //
 				int staffSlash;
@@ -1218,6 +1235,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 					item->m_Qualities.SetDataID(SETUP_DID, 0x0200184D);
 				}
 
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 			}
 		}
 	}

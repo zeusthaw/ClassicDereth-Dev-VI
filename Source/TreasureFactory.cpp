@@ -1705,14 +1705,21 @@ void CTreasureFactory::MutateMeleeWeapon(CWeenieObject *newItem, CWieldTier *wie
 			if (weenieDefs->m_WCID == 3750) //acid battleaxe has the wrong graphics
 				newItem->m_Qualities.SetDataID(SETUP_DID, 33555690);
 
+<<<<<<< HEAD
 			/*if (weenieDefs->m_Qualities.InqDataID(SETUP_DID, 0x0200130B) && (weenieDefs->m_WCID == 351))//TOD Spadone Texture//
+=======
+			if (weenieDefs->m_Qualities.GetDID(SETUP_DID, 0x0200130B) && (weenieDefs->m_WCID == 351))//TOD Spadone Texture//
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 				newItem->m_Qualities.SetDataID(ICON_DID, 0x06006B77),//TOD Spadone Icon//
 				newItem->m_Qualities.SetString(NAME_STRING, "Spadone"),//Re-Write the name to match Item//
 				newItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x04001A25),
 				newItem->m_Qualities.SetDataID(MUTATE_FILTER_DID, 234881053),
 				newItem->m_Qualities.SetDataID(TSYS_MUTATION_FILTER_DID, 939524101),
 				newItem->m_Qualities.SetInt(TSYS_MUTATION_DATA_INT, 101255170);
+<<<<<<< HEAD
 			*/
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 
 			switch ((DAMAGE_TYPE)elementalType)
 			{
@@ -1919,6 +1926,8 @@ void CTreasureFactory::MutateMissileWeapon(CWeenieObject *newItem, CWieldTier *w
 
 void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTier, sItemCreationInfo &creationInfo, CTreasureTier *tier, CTreasureProfileCategory *category, CItemTreasureProfileEntry *entry)
 {
+
+
 	if (wieldTier->weaponSkillRequired > 0)
 	{
 		std::vector<STypeSkill> possibleRequirements;
@@ -1959,11 +1968,12 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 
 		if (wieldTier->maxManaConversionBonus > 0 && getRandomNumberExclusive(100) < wieldTier->manaConversionBonusChance * 100 * (1 + (creationInfo.qualityModifier * 2)))
 		{
-			double manaConversionMod = round(getRandomDouble(wieldTier->minManaConversionBonus / 100, wieldTier->maxManaConversionBonus / 100, eRandomFormula::favorMid, 2, creationInfo.qualityModifier), 2);
-			if (manaConversionMod > 0)
+			double manaConversionMod = round(getRandomDouble(0, wieldTier->maxManaConversionBonus / 100, eRandomFormula::favorMid, 2, creationInfo.qualityModifier), 1);
+			if (manaConversionMod >= 0)
 				newItem->m_Qualities.SetFloat(MANA_CONVERSION_MOD_FLOAT, manaConversionMod);
 		}
 
+<<<<<<< HEAD
 		if (wieldTier->maxElementalDamageMod > 0)
 		{
 			double elementalDamageMod = round(getRandomDouble(wieldTier->minElementalDamageMod, wieldTier->maxElementalDamageMod, eRandomFormula::favorMid, 2, 0), 2);
@@ -2076,6 +2086,8 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 				newItem->m_Qualities.SetFloat(MANA_CONVERSION_MOD_FLOAT, manaConversionMod);
 		}
 
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 		if (!entry->elementalVariants.empty())
 		{
 			if (getRandomNumberExclusive(100) < wieldTier->elementalChance * 100)
@@ -2087,6 +2099,10 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 				if (weenieDefs == NULL)
 					return;
 
+<<<<<<< HEAD
+=======
+				DWORD setup;
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 				if (weenieDefs->m_Qualities.InqDataID(SETUP_DID, setup))
 					newItem->m_Qualities.SetDataID(SETUP_DID, setup);
 
@@ -2097,7 +2113,10 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 				if (wieldTier->maxElementalDamageMod > 0)
 				{
 					elementalDamageMod = 1.0 + (elementalDamageMod / 100.0);
+<<<<<<< HEAD
 					
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 
 					switch ((DAMAGE_TYPE)elementalType)
 					{
@@ -2107,8 +2126,12 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 						newItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 67116700);
 						newItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_TYPE::UI_EFFECT_ACID);
 						newItem->m_Qualities.SetString(NAME_STRING, "Searing " + newItem->m_Qualities.GetString(NAME_STRING, ""));
+<<<<<<< HEAD
 						
 						/*
+=======
+
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 						if (weenieDefs->m_WCID == 2548) //Acid Scepter
 							newItem->m_Qualities.SetDataID(SETUP_DID, 33559229),
 							newItem->m_Qualities.SetDataID(ICON_DID, 100668792);
@@ -2124,7 +2147,10 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 							(weenieDefs->m_WCID == 2472) //Acid Baton
 							newItem->m_Qualities.SetDataID(SETUP_DID, 33559641),
 							newItem->m_Qualities.SetDataID(ICON_DID, 100688011);
+<<<<<<< HEAD
 						
+=======
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 						break;
 					case DAMAGE_TYPE::COLD_DAMAGE_TYPE:
 						newItem->m_Qualities.SetInt(DAMAGE_TYPE_INT, COLD_DAMAGE_TYPE);
@@ -2132,7 +2158,11 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 						newItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 67116700);
 						newItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_TYPE::UI_EFFECT_FROST);
 						newItem->m_Qualities.SetString(NAME_STRING, "Freezing " + newItem->m_Qualities.GetString(NAME_STRING, ""));
+<<<<<<< HEAD
 						/*
+=======
+
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 						if (weenieDefs->m_WCID == 2548) //Cold Scepter
 							newItem->m_Qualities.SetDataID(SETUP_DID, 33559227),
 							newItem->m_Qualities.SetDataID(ICON_DID, 100668792);
@@ -2156,7 +2186,11 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 						newItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 67116700);
 						newItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_TYPE::UI_EFFECT_FIRE);
 						newItem->m_Qualities.SetString(NAME_STRING, "Flaming " + newItem->m_Qualities.GetString(NAME_STRING, ""));
+<<<<<<< HEAD
 						/*
+=======
+
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 						if (weenieDefs->m_WCID == 2548) //Fire Scepter
 							newItem->m_Qualities.SetDataID(SETUP_DID, 33559228),
 							newItem->m_Qualities.SetDataID(ICON_DID, 100668792);
@@ -2179,7 +2213,11 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 						newItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 67116700);
 						newItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_TYPE::UI_EFFECT_LIGHTNING);
 						newItem->m_Qualities.SetString(NAME_STRING, "Zapping " + newItem->m_Qualities.GetString(NAME_STRING, ""));
+<<<<<<< HEAD
 						/*
+=======
+
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 						if (weenieDefs->m_WCID == 2548) //Light Scepter
 							newItem->m_Qualities.SetDataID(SETUP_DID, 33559230),
 							newItem->m_Qualities.SetDataID(ICON_DID, 100668792);
@@ -2202,7 +2240,11 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 						newItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 67116700);
 						newItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_TYPE::UI_EFFECT_BLUDGEONING);
 						newItem->m_Qualities.SetString(NAME_STRING, "Smashing " + newItem->m_Qualities.GetString(NAME_STRING, ""));
+<<<<<<< HEAD
 						/*
+=======
+
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 						if (weenieDefs->m_WCID == 2548) //Bludge Scepter
 							newItem->m_Qualities.SetDataID(SETUP_DID, 33559231),
 							newItem->m_Qualities.SetDataID(ICON_DID, 100668792);
@@ -2225,7 +2267,11 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 						newItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 67116700);
 						newItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_TYPE::UI_EFFECT_PIERCING);
 						newItem->m_Qualities.SetString(NAME_STRING, "Prickly " + newItem->m_Qualities.GetString(NAME_STRING, ""));
+<<<<<<< HEAD
 						/*
+=======
+
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 						if (weenieDefs->m_WCID == 2548) //Pierce Scepter
 							newItem->m_Qualities.SetDataID(SETUP_DID, 33559232),
 							newItem->m_Qualities.SetDataID(ICON_DID, 100668792);
@@ -2248,7 +2294,11 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 						newItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 67116700);
 						newItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_TYPE::UI_EFFECT_SLASHING);
 						newItem->m_Qualities.SetString(NAME_STRING, "Slicing " + newItem->m_Qualities.GetString(NAME_STRING, ""));
+<<<<<<< HEAD
 						
+=======
+
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 						if (weenieDefs->m_WCID == 2548) //Slash Scepter
 							newItem->m_Qualities.SetDataID(SETUP_DID, 33559233),
 							newItem->m_Qualities.SetDataID(ICON_DID, 100668792),
@@ -2270,7 +2320,11 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 							newItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_TYPE::UI_EFFECT_SLASHING);
 							newItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 67116700);
 							newItem->m_Qualities.SetDataID(CLOTHINGBASE_DID, 268437034);
+<<<<<<< HEAD
 							
+=======
+
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 						break;
 					}
 				}
@@ -2288,6 +2342,26 @@ void CTreasureFactory::MutateCaster(CWeenieObject *newItem, CWieldTier *wieldTie
 					if (meleeDefensenowield > 0)
 						newItem->m_Qualities.SetFloat(WEAPON_DEFENSE_FLOAT, meleeDefensenowield);
 				}
+<<<<<<< HEAD
+=======
+				//Icon Fixes for Magic Casters//
+
+				//Staffs//
+				if (weenieDefs->m_Qualities.GetDID(SETUP_DID, 33560650))//Acid Staff//
+					newItem->m_Qualities.SetDataID(ICON_DID, 100690005);
+				if (weenieDefs->m_Qualities.GetDID(SETUP_DID, 33560651))//Blunt Staff//
+					newItem->m_Qualities.SetDataID(ICON_DID, 100690003);
+				if (weenieDefs->m_Qualities.GetDID(SETUP_DID, 33560652))//Electric Staff//
+					newItem->m_Qualities.SetDataID(ICON_DID, 100690007);
+				if (weenieDefs->m_Qualities.GetDID(SETUP_DID, 33560653))//Fire Staff//
+					newItem->m_Qualities.SetDataID(ICON_DID, 100690004);
+				if (weenieDefs->m_Qualities.GetDID(SETUP_DID, 33560654))//Frost Staff//
+					newItem->m_Qualities.SetDataID(ICON_DID, 100690005);
+				if (weenieDefs->m_Qualities.GetDID(SETUP_DID, 33560655))//Piercing Staff//
+					newItem->m_Qualities.SetDataID(ICON_DID, 100690009);
+				if (weenieDefs->m_Qualities.GetDID(SETUP_DID, 33560656))//Slashing Staff//
+					newItem->m_Qualities.SetDataID(ICON_DID, 100690003);
+>>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 			}
 		}
 		
