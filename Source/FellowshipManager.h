@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include "Packable.h"
@@ -51,7 +52,6 @@ public:
 	void SendUpdate(int updateType);
 	void UpdateData();
 	void TickUpdate();
-	void VitalsUpdate();
 	void GiveXP(CWeenieObject *source, long long amount, bool bShowText);
 	unsigned int CalculateExperienceProportionSum();
 	void Chat(DWORD sender_id, const char *text);
@@ -67,7 +67,6 @@ public:
 	BOOL _locked = 0;
 	BOOL _share_loot = 0;
 	PackableHashTable<unsigned long, long> _fellows_departed;
-	PackableHashTable<unsigned long, long> LockedFellowshipList;
 
 	// not sent to the client:
 	BOOL _desiredShareXP = false; // just because we want to share, doesn't mean we can (if levels don't match up anymore)

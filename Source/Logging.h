@@ -1,4 +1,6 @@
 
+
+// File absorbed from GDLE Team at https://gitlab.com/Scribble/gdlenhanced/blob/master/Source/Logging.h //
 #pragma once
 
 #include "Util.h"

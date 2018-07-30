@@ -85,72 +85,73 @@ void CTownCrier::HandleMoveToDone(DWORD error)
 			MakeSpellcastingManager();
 
 			//Life Protection Buffs//
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ArmorOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BladeProtectionOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), PiercingProtectionOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BludgeonProtectionOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), FireProtectionOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ColdProtectionOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), AcidProtectionOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), LightningProtectionOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), RejuvenationOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ManaRenewalOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), RegenerationOther1_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ArmorOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BladeProtectionOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), PiercingProtectionOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BludgeonProtectionOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), FireProtectionOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ColdProtectionOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), AcidProtectionOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), LightningProtectionOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), RejuvenationOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ManaRenewalOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), RegenerationOther5_SpellID);
 
 			//Attribute Buffs//
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), StrengthOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), EnduranceOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), CoordinationOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), QuicknessOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), FocusOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), WillpowerOther1_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), StrengthOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), EnduranceOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), CoordinationOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), QuicknessOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), FocusOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), WillpowerOther5_SpellID);
 
 			//Magic Skill Buffs//
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), CreatureEnchantmentMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), LifeMagicMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ItemEnchantmentMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), WarMagicMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ManaMasteryOther1_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), CreatureEnchantmentMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), LifeMagicMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ItemEnchantmentMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), WarMagicMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ManaMasteryOther5_SpellID);
 
 			//Alt Skill Buffs//
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), SprintOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), JumpingMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ImpregnabilityOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), InvulnerabilityOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), MagicResistanceOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), FealtyOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), LeadershipMasteryOther1_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), SprintOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), JumpingMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ImpregnabilityOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), InvulnerabilityOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), MagicResistanceOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), FealtyOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), LeadershipMasteryOther5_SpellID);
 
 			//Melee Skill Buffs//
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), SwordMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), AxeMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), MaceMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), SpearMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), StaffMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), DaggerMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), UnarmedCombatMasteryOther1_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), SwordMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), AxeMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), MaceMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), SpearMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), StaffMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), DaggerMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), UnarmedCombatMasteryOther5_SpellID);
 
 			//Missile Skill Buffs//
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), CrossBowMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BowMasteryOther1_SpellID);
-			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ThrownWeaponMasteryOther1_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), CrossBowMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BowMasteryOther5_SpellID);
+			m_SpellcastingManager->CastSpellInstant(pOther->GetID(), ThrownWeaponMasteryOther5_SpellID);
 
 			//Weapon Buffs//
 			pOther->MakeSpellcastingManager();			
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BloodDrinker1_SpellID);
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), HeartSeeker1_SpellID);
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), Defender1_SpellID);
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), SwiftKiller1_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BloodDrinker5_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), HeartSeeker5_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), Defender5_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), SwiftKiller5_SpellID);
 
 			//Armor Banes//
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), Impenetrability1_SpellID);
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BladeBane2_SpellID);
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), LightningBane1_SpellID);
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), PiercingBane1_SpellID);
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), AcidBane1_SpellID);
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BludgeonBane1_SpellID);
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), FrostBane1_SpellID);
-			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), FlameBane1_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), Impenetrability5_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), FlameBane5_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BladeBane5_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), LightningBane5_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), PiercingBane5_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), AcidBane5_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), BludgeonBane5_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), FrostBane5_SpellID);
+			pOther->m_SpellcastingManager->CastSpellInstant(pOther->GetID(), FlameBane5_SpellID);
 
 
 

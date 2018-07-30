@@ -755,7 +755,8 @@ void CPacketController::IncomingBlob(BlobPacket_s *blob, double recvTime)
 
 				if ((float)actualIntervals > (float)(expectedIntervals * 2.0))
 				{
-					SERVER_ERROR << "Possible speed hack on user:" << m_pClient->GetDescription() << "([rate:" << ((double)actualIntervals / (double)expectedIntervals) << "]) Disconnecting.";
+					LOG(Temp, Normal, "Possible speed hack on user: %s ([rate: %f]) Disconnecting.", m_pClient->GetDescription(), (double)actualIntervals / (double)expectedIntervals);
+
 					Kill(__FILE__, __LINE__);
 
 					/*

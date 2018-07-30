@@ -238,32 +238,6 @@ void Fellowship::SendUpdate(int updateType)
 	}
 }
 
-void Fellowship::VitalsUpdate()
-{
-	for (auto &entry : _fellowship_table)
-	{
-		if (CPlayerWeenie *player = g_pWorld->FindPlayer(entry.first))
-		{
-			DWORD fellow_id = player->GetID();
-
-			Fellow *f = _fellowship_table.lookup(fellow_id);
-
-			BinaryWriter updateMessage;
-			updateMessage.Write<DWORD>(0x2C0);
-			updateMessage.Write<DWORD>(fellow_id);
-			f->Pack(&updateMessage);
-			updateMessage.Write<DWORD>(Fellow_UpdateVitals);
-			for (auto &entry : _fellowship_table)
-			{
-				if (CPlayerWeenie *player = g_pWorld->FindPlayer(entry.first))
-				{
-					// partial update to everyone in fellow
-					player->SendNetMessage(&updateMessage, PRIVATE_MSG, TRUE, FALSE);
-				}
-			}
-		}
-	}
-}
 bool Fellowship::IsEmpty()
 {
 	return _fellowship_table.empty();

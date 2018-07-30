@@ -5,8 +5,6 @@
 #include "PhysicsObj.h"
 #include "Qualities.h"
 
-#include <memory>
-
 class CWorldLandBlock;
 
 #define MAX_PLAYER_INVENTORY 102
@@ -126,12 +124,6 @@ struct DamageEventData
 	double armorRendingMultiplier = 0.0;
 	bool isElementalRending = false;
 	double rendingMultiplier = 0.0;
-	bool isResistanceCleaving = false;
-	double cleavingModifier = 0.0;
-	int cleavingType = 0;
-	bool isArmorCleaving = false;
-	double armorCleavingModifier = 0.0;
-	int cleaveTargets = 1;
 
 	std::string GetSourceName();
 	std::string GetTargetName();
@@ -255,7 +247,7 @@ public:
 	virtual void PostSpawn();
 
 	virtual void InitPhysicsObj();
-	void CleanupPhysics();
+	//void CleanupPhysics();
 
 	int GetStructureNum();
 	int GetStackOrStructureNum();
@@ -285,7 +277,6 @@ public:
 	virtual bool InqRunRate(float &rate); // 0x34
 	virtual bool CanJump(float extent);
 	virtual bool JumpStaminaCost(float, long &); // 0x40
-	virtual float CalculateDefenseImpact();
 
 	virtual int DoCollision(const class EnvCollisionProfile &prof);
 	virtual int DoCollision(const class ObjCollisionProfile &prof);
@@ -330,7 +321,6 @@ public:
 
 	bool IsGeneratorSlotReady(int slot);
 	void InitCreateGenerator();
-	void InitCreateGeneratorOnDeath();
 
 	bool IsStorage();
 	bool CanPickup(); // custom
@@ -344,14 +334,14 @@ public:
 
 	float DistanceTo(CWeenieObject *other, bool bUseSpheres = false);
 	float DistanceSquared(CWeenieObject *other);
-	float HeadingTo(CWeenieObject *target, bool relative = true);
-	float HeadingFrom(CWeenieObject *target, bool relative = true);
+	float HeadingTo(CWeenieObject *target, bool absolute = true);
+	float HeadingFrom(CWeenieObject *target, bool absolute = true);
 	float HeadingTo(DWORD targetId, bool relative = true);
 	float HeadingFrom(DWORD targetId, bool relative = true);
 
 	float GetBurdenPercent();
 
-	DWORD GetXPForKillLevel(int level);
+//	DWORD GetXPForKillLevel(int level);
 	virtual void GivePerksForKill(CWeenieObject *pKilled);
 	void GiveSharedXP(long long amount, bool showText);
 	void GiveXP(long long amount, bool showText = false, bool allegianceXP = false);
@@ -651,7 +641,7 @@ public:
 	DWORD GetImbueEffects();
 	void AddImbueEffect(ImbuedEffectType effect);
 
-	bool IsArmorRending();
+	//bool IsArmorRending();
 
 	virtual double GetManaConversionMod();
 
@@ -680,11 +670,6 @@ public:
 	virtual void IncrementQuest(const char *questName) { }
 	virtual void DecrementQuest(const char *questName) { }
 	virtual void EraseQuest(const char *questName) { }
-	virtual void SetQuestCompletions(const char *questName, int numCompletions) { }
-
-	virtual std::string Ktref(const char *questName) { return ""; }
-	virtual unsigned int InqQuestMax(const char *questName) { return 0; }
-
 
 	bool LearnSpell(DWORD spell_id, bool showTextAndEffect);
 
@@ -729,4 +714,3 @@ protected:
 	// whether or not anyone has ever been made aware of this objects existence
 	bool m_bWorldIsAware = false;
 };
-

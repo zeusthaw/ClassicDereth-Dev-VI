@@ -83,8 +83,6 @@ public:
 	virtual const char *SanamarStartPosition() { return m_SanamarStartPosition.c_str(); }
 
 	virtual int PKRespiteTime() { return m_PKRespiteTime; }
-	virtual bool SpellPurgeOnLogin() { return m_bSpellPurgeOnLogin; }
-
 
 	virtual double SalvageMultiplier() { return m_SalvageMult; }
 
@@ -163,7 +161,6 @@ protected:
 	std::string m_SanamarStartPosition;
 
 	int m_PKRespiteTime = 300;
-	bool m_bSpellPurgeOnLogin = false;
 
 	float m_SalvageMult = 1.0f;
 };

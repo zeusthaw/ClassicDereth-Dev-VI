@@ -23,11 +23,14 @@
 #include "Player.h"
 #include "GameEventManager.h"
 #include "House.h"
+<<<<<<< HEAD
 #include "easylogging++.h"
 <<<<<<< HEAD
 #include "..\RecipeFactory.h"
 =======
 >>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
+=======
+>>>>>>> parent of 9df554b... Merged in GDLE !movetome cmd and GDLE Recipe tools, also added new Launcher ICON created by Hotdog
 
 // should all be encapsulated realistically, but we aren't going to multi-instance the server...
 CDatabase *g_pDB = NULL;
@@ -50,7 +53,6 @@ CInferredCellData *g_pCellDataEx = NULL;
 TURBINEPORTAL *g_pPortal = NULL;
 TURBINECELL *g_pCell = NULL;
 CHouseManager *g_pHouseManager = NULL;
-RecipeFactory *g_pRecipeFactory = NULL;
 
 CPhatServer::CPhatServer(const char *configFilePath)
 {
@@ -181,8 +183,7 @@ bool CPhatServer::Init()
 	g_ClothingCache.LoadAll();
 	//#endif
 
-	WINLOG(Temp, Normal, "The server is now online.\n");
-	SERVER_INFO << "The server is now online.";
+	LOG(Temp, Normal, "The server is now online.\n");
 
 #if 0
 	FILE *fp = fopen("d:\\temp\\houses.bin", "wb");
@@ -295,7 +296,7 @@ void CPhatServer::Shutdown()
 {
 	if (g_pNetwork)
 	{
-		SystemBroadcast("!!!ATTENTION PLAYERS - Fizzle Classic is shutting down for Maintenence NOW!!!!");
+		SystemBroadcast("ATTENTION - This Asheron's Call Server is shutting down NOW!!!!");
 
 		g_pNetwork->LogoutAll();
 		g_pNetwork->Think();
@@ -367,19 +368,16 @@ void CPhatServer::InitializeSocket(unsigned short port, in_addr address)
 		localhost.sin_port = htons(port);
 		if (!bind(m_sockets[0], (struct sockaddr *)&localhost, sizeof(SOCKADDR_IN)))
 		{
-			WINLOG(Temp, Normal, "Bound to port %u!\n", port);
-			SERVER_INFO << "Bound to port" << port << "!";
+			LOG(Temp, Normal, "Bound to port %u!\n", port);
 			break;
 		}
-		WINLOG(Temp, Normal, "Failed bind on port %u!\n", port);
-		SERVER_ERROR << "Failed bind on port:" << port;
+		LOG(Temp, Normal, "Failed bind on port %u!\n", port);
 		port++;
 	}
 
 	if (port == failport)
 	{
-		WINLOG(Temp, Normal, "Failure to bind socket!\n");
-		SERVER_ERROR << "Failed bind on socket";
+		LOG(Temp, Normal, "Failure to bind socket!\n");
 	}
 	else
 	{
@@ -393,8 +391,7 @@ void CPhatServer::InitializeSocket(unsigned short port, in_addr address)
 			localhost.sin_port = htons(basePort + i);
 			if (bind(m_sockets[i], (struct sockaddr *)&localhost, sizeof(SOCKADDR_IN)))
 			{
-				WINLOG(Temp, Normal, "Failure to bind socket port %d!\n", basePort + i);
-				SERVER_ERROR << "Failed bind on socket port:" << (basePort + i);
+				LOG(Temp, Normal, "Failure to bind socket port %d!\n", basePort + i);
 			}
 		}
 	}
@@ -417,8 +414,7 @@ void CPhatServer::SystemBroadcast(char *text)
 	if (!g_pNetwork || !g_pWorld)
 		return;
 
-	WINLOG(Temp, Normal, "Broadcast, \"%s\"\n", text);
-	SERVER_INFO << "Broadcast:" << text;
+	LOG(Temp, Normal, "Broadcast, \"%s\"\n", text);
 	g_pWorld->BroadcastGlobal(ServerBroadcast("System", text, LTT_DEFAULT), PRIVATE_MSG);
 }
 
