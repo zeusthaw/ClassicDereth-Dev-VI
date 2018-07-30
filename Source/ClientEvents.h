@@ -4,6 +4,8 @@
 
 class CPlayerWeenie;
 
+class TradeManager;
+
 const float sidestep_factor = 0.5f;
 const float backwards_factor = 0.64999998f;
 const float run_turn_factor = 1.5f;
@@ -32,6 +34,7 @@ public:
 	void ExitWorld();
 	// Merged from GDLE2 Team https://gitlab.com/Scribble/gdlenhanced/commit/3cf018646aa989931b63beb0781d4e1a62339746 //
 	void ForceLogout();
+
 	void ActionComplete(int error = WERROR_NONE);
 	void SendText(const char *szText, long lColor);
 
@@ -127,6 +130,7 @@ private:
 	double m_fNextAllegianceUpdate = 0.0;
 	BOOL m_bSendAllegianceUpdates = FALSE;
 	BOOL m_bSentFirstAllegianceUpdate = FALSE;
+	int last_age_update = 0;
 
 	double _next_chat_interval = 0.0;
 	double _next_chat_allowed = 0.0;

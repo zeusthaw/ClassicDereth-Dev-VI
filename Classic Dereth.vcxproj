@@ -25,7 +25,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{79CD1CA2-76B3-4FFC-9825-DC29E861CE25}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
     <ProjectName>Classic Dereth</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -455,11 +455,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\BindStone.cpp" />
-	<ClCompile Include="Source\ManaStone.cpp" />
-	<ClCompile Include="Source\EnumUtil.cpp" />
+    <ClCompile Include="Source\easylogging++.cpp" />
+    <ClCompile Include="Source\ManaStone.cpp" />
+    <ClCompile Include="Source\EnumUtil.cpp" />
     <ClCompile Include="Source\PhatSDK\Support\CombatFormulas.cpp" />
     <ClCompile Include="Source\PhatSDK\Support\Random.cpp" />
     <ClCompile Include="Source\PhatSDK\Support\RandomRange.cpp" />
+    <ClCompile Include="Source\RecipeFactory.cpp" />
     <ClCompile Include="Source\TreasureFactory.cpp" />
     <ClCompile Include="Source\AllegianceManager.cpp" />
     <ClCompile Include="Source\Ammunition.cpp" />
@@ -640,15 +642,17 @@
     <ClCompile Include="Source\WeenieObject.cpp" />
     <ClCompile Include="Source\World.cpp" />
     <ClCompile Include="Source\WorldLandBlock.cpp" />
-	<ClCompile Include="Source\TradeManager.cpp" />
+    <ClCompile Include="Source\TradeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\easylogging++.h" />
     <ClInclude Include="Source\EnumUtil.h" />
     <ClInclude Include="Source\BindStone.h" />
-	<ClInclude Include="Source\ManaStone.h" />
+    <ClInclude Include="Source\ManaStone.h" />
     <ClInclude Include="Source\PhatSDK\Support\CombatFormulas.h" />
     <ClInclude Include="Source\PhatSDK\Support\Random.h" />
     <ClInclude Include="Source\PhatSDK\Support\RandomRange.h" />
+    <ClInclude Include="Source\RecipeFactory.h" />
     <ClInclude Include="Source\TreasureFactory.h" />
     <ClInclude Include="Source\AllegianceManager.h" />
     <ClInclude Include="Source\Ammunition.h" />
@@ -846,7 +850,7 @@
     <ClInclude Include="Source\WorldLandBlock.h" />
     <ClInclude Include="Lib\zlib\zconf.h" />
     <ClInclude Include="Lib\zlib\zlib.h" />
-	<ClInclude Include="Source\TradeManager.h" />
+    <ClInclude Include="Source\TradeManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource\client.ico" />

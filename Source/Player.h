@@ -5,6 +5,7 @@
 #include "Monster.h"
 #include "Packable.h"
 #include "TradeManager.h"
+#include "easylogging++.h"
 
 class CClient;
 class BinaryWriter;

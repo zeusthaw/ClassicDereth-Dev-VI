@@ -78,7 +78,7 @@ public:
 
 	float DistanceToHome();
 	bool ShouldSeekNewTarget();
-	
+
 	bool RollDiceCastSpell();
 	bool DoCastSpell(DWORD spell_id);
 	bool DoMeleeAttack();
@@ -131,3 +131,4 @@ public:
 	double _cachedVisualAwarenessRange = 0.0;
 };
 
+extern bool monster_brawl;

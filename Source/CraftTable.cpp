@@ -238,7 +238,7 @@ DEFINE_UNPACK_JSON(CraftRequirements)
 	{
 		_boolRequirement.UnPackJson(reader);
 	}
-	return true;
+	return true; 
 }
 
 

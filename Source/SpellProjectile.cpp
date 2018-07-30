@@ -4,8 +4,9 @@
 #include "World.h"
 #include "Monster.h"
 #include "CombatFormulas.h"
+#include "Player.h"
 
-const float MAX_SPELL_PROJECTILE_LIFETIME = 60.0f;
+const float MAX_SPELL_PROJECTILE_LIFETIME = 30.0f;
 
 CSpellProjectile::CSpellProjectile(const SpellCastData &scd, DWORD target_id)//, unsigned int damage)
 {
@@ -26,7 +27,7 @@ CSpellProjectile::CSpellProjectile(const SpellCastData &scd, DWORD target_id)//,
 	m_fEffectMod = max(0, min(1.0, ((scd.power_level_of_power_component - 1.0) / 7.0)));
 
 	SetItemType(ITEM_TYPE::TYPE_SELF);
-	
+
 	m_Qualities.SetBool(STUCK_BOOL, TRUE);
 	m_Qualities.SetBool(ATTACKABLE_BOOL, TRUE);
 	m_Qualities.SetBool(UI_HIDDEN_BOOL, TRUE);
@@ -40,9 +41,18 @@ CSpellProjectile::~CSpellProjectile()
 
 void CSpellProjectile::Tick()
 {
-	if (!InValidCell() || (m_fSpawnTime + MAX_SPELL_PROJECTILE_LIFETIME) <= Timer::cur_time || (m_fDestroyTime <= Timer::cur_time))
+	if (!m_bDestroyMe)
 	{
-		MarkForDestroy();
+		if (!InValidCell() || (m_fDestroyTime <= Timer::cur_time))
+		{
+			MarkForDestroy();
+		}
+		// not destroyed yet and distance/time exceeded
+		else if (m_fDestroyTime > Timer::cur_time + 10 && (m_Position.distance(m_CachedSpellCastData.initial_cast_position) > m_CachedSpellCastData.max_range || (m_fSpawnTime + MAX_SPELL_PROJECTILE_LIFETIME - 1) <= Timer::cur_time))
+		{
+			HandleExplode();
+			m_fDestroyTime = Timer::cur_time + 1;
+		}
 	}
 }
 
@@ -52,46 +62,6 @@ void CSpellProjectile::PostSpawn()
 
 	EmitEffect(PS_Launch, m_fEffectMod);
 	m_fSpawnTime = Timer::cur_time;
-
-	if (m_CachedSpellCastData.spellEx->_meta_spell._spell->AsLifeProjectileSpell())
-	{
-		isLifeProjectile = true;
-		ProjectileLifeSpellEx *lifeProjectile = m_CachedSpellCastData.spellEx->_meta_spell._spell->AsLifeProjectileSpell();
-
-		DAMAGE_TYPE damageType = InqDamageType();
-		selfDrainedDamageRatio = lifeProjectile->_damage_ratio;
-		float drainPercentage = lifeProjectile->_drain_percentage;
-
-		CWeenieObject *caster = NULL;
-		if (m_SourceID)
-			caster = g_pWorld->FindObject(m_SourceID);
-
-		if (!caster)
-			return;
-
-		switch (damageType)
-		{
-		case HEALTH_DAMAGE_TYPE:
-		{
-			int amount = round((float)caster->GetHealth() * drainPercentage);
-			selfDrainedAmount = abs(caster->AdjustHealth(-amount));
-			break;
-		}
-		case STAMINA_DAMAGE_TYPE:
-		{
-			int amount = round((float)caster->GetStamina() * drainPercentage);
-			selfDrainedAmount = abs(caster->AdjustStamina(-amount));
-			break;
-		}
-		case MANA_DAMAGE_TYPE:
-		{
-			int amount = round((float)caster->GetMana() * drainPercentage);
-			selfDrainedAmount = abs(caster->AdjustMana(-amount));
-			break;
-		}
-		}
-		caster->CheckDeath(caster, damageType);
-	}
 }
 
 void CSpellProjectile::HandleExplode()
@@ -129,6 +99,12 @@ BOOL CSpellProjectile::DoCollision(const class AtkCollisionProfile &prof)
 			// EmitEffect(5, 0.8f);
 			HandleExplode();
 			m_fDestroyTime = Timer::cur_time + 1.0;
+
+			if (pSource && pHit && pSource->AsPlayer() && pHit->AsPlayer())
+			{
+				pSource->AsPlayer()->UpdatePKActivity();
+				pHit->AsPlayer()->UpdatePKActivity();
+			}
 
 			// try to resist
 			bool bResisted = false;
@@ -196,9 +172,19 @@ BOOL CSpellProjectile::DoCollision(const class AtkCollisionProfile &prof)
 				dmgEvent.isProjectileSpell = true;
 				dmgEvent.spell_name = m_CachedSpellCastData.spell->_name;
 
+				CalculateCriticalHitData(&dmgEvent, &m_CachedSpellCastData);
+				dmgEvent.wasCrit = (Random::GenFloat(0.0, 1.0) < dmgEvent.critChance) ? true : false;
+
+
 				CalculateDamage(&dmgEvent, &m_CachedSpellCastData);
 
 				pHit->TryToDealDamage(dmgEvent);
+
+				if (pSource && pSource->AsPlayer())
+				{
+					// update the target's health on the casting player asap
+					((CPlayerWeenie*)pSource)->RefreshTargetHealth();
+				}
 			}
 		}
 	}
@@ -219,6 +205,13 @@ BOOL CSpellProjectile::DoCollision(const class ObjCollisionProfile &prof)
 void CSpellProjectile::DoCollisionEnd(DWORD object_id)
 {
 	CWeenieObject::DoCollisionEnd(object_id);
+}
+
+void CSpellProjectile::makeLifeProjectile(int iSelfDrainedAmount, float fSelfDrainedDamageRatio)
+{
+	isLifeProjectile = true;
+	selfDrainedAmount = iSelfDrainedAmount;
+	selfDrainedDamageRatio = fSelfDrainedDamageRatio;
 }
 
 
