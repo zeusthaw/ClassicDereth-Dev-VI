@@ -257,7 +257,7 @@ BEGIN
         BLOCK "040004b0"
         BEGIN
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "ProductName", "GDL - Classic Dereth"
+            VALUE "ProductName", "GDL - Fizzle Classic"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END

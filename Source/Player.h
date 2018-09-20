@@ -5,6 +5,8 @@
 #include "Monster.h"
 #include "Packable.h"
 #include "TradeManager.h"
+#include "easylogging++.h"
+#include "client.h"
 
 class CClient;
 class BinaryWriter;
@@ -19,6 +21,8 @@ public:
 	double workmanship = 0.0;
 	int units = 0;
 };
+
+
 
 
 class CPlayerWeenie : public CMonsterWeenie
@@ -59,6 +63,7 @@ public:
 	
 	CWeenieObject *m_pCraftingTool;
 	CWeenieObject *m_pCraftingTarget;
+	int InqIntQuality(STypeInt key, int defaultValue, BOOL raw = FALSE);
 
 	virtual int UseEx(CWeenieObject *pTool, CWeenieObject *pTarget);
 	virtual int UseEx(bool bConfirmed = false);

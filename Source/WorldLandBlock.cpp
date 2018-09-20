@@ -888,21 +888,27 @@ BOOL CWorldLandBlock::Think()
 
 			if (!pEntity->ShouldDestroy())
 			{
+#ifdef DEBUG
 				static bool checkMe = true;
 				if (checkMe)
 				{
 					assert(pEntity->cell);
 					checkMe = false;
 				}
-
+#endif
 				if (!pEntity->cell)
 				{
 					if (CPlayerWeenie *player = pEntity->AsPlayer())
 					{
 						if (player->_nextTryFixBrokenPosition < Timer::cur_time)
 						{
-							player->_nextTryFixBrokenPosition = Timer::cur_time + 5.0;
-							player->Movement_Teleport(Position(0xA9B4001F, Vector(87.750603f, 147.722321f, 66.005005f), Quaternion(0.011819f, 0.000000, 0.000000, -0.999930f)), false);
+							player->_nextTryFixBrokenPosition = Timer::cur_time + 2.0;
+
+							if (player->m_LastValidPosition.objcell_id != 0)
+								player->Movement_Teleport(player->m_LastValidPosition);
+							else
+								//player->Movement_Teleport(Position(0xA9B4001F, Vector(87.750603f, 147.722321f, 66.005005f), Quaternion(0.011819f, 0.000000, 0.000000, -0.999930f)), false);
+								player->TeleportToLifestone();
 						}
 					}
 				}

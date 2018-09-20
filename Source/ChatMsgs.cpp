@@ -118,7 +118,7 @@ BinaryWriter *ChannelChat(DWORD dwChannel, const char* szName, const char* szTex
 {
 	MESSAGE_BEGIN(ChannelChat);
 
-	ChannelChat->Write<DWORD>(0x14A);
+	ChannelChat->Write<DWORD>(0x147);
 	ChannelChat->Write<DWORD>(dwChannel);
 	ChannelChat->WriteString(szName);
 	ChannelChat->WriteString(szText);

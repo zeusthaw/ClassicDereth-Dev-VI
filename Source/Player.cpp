@@ -22,6 +22,8 @@
 #include "Corpse.h"
 #include "House.h"
 #include "Util.h"
+#include "easylogging++.h"
+
 
 #define PLAYER_SAVE_INTERVAL 180.0
 #define PLAYER_HEALTH_POLL_INTERVAL 5.0
@@ -75,6 +77,8 @@ CPlayerWeenie::CPlayerWeenie(CClient *pClient, DWORD dwGUID, WORD instance_ts)
 	m_LastAssessed = 0;
 
 	m_NextSave = Timer::cur_time + PLAYER_SAVE_INTERVAL;
+
+
 }
 
 CPlayerWeenie::~CPlayerWeenie()
@@ -722,8 +726,9 @@ void CPlayerWeenie::CalculateAndDropDeathItems(CCorpseWeenie *pCorpse)
 	}
 	text.append("!");
 
-	if(coinConsumed || itemsLost)
-		SendText(text.c_str(), LTT_DEFAULT);
+	DEATH_LOG << InqStringQuality(NAME_STRING, "") << "-" << itemsLostText;
+	if (coinConsumed || itemsLost)
+		SendText(itemsLostText.c_str(), LTT_DEFAULT);
 
 	if (_pendingCorpse) //Absorbed from GDLE2 
 	{
@@ -1097,6 +1102,11 @@ struct CompareManaNeeds : public std::binary_function<CWeenieObject*, CWeenieObj
 		}
 	};
 
+int CPlayerWeenie::InqIntQuality(STypeInt key, int defaultValue, BOOL raw)
+{
+	return 0;
+}
+
 int CPlayerWeenie::UseEx(CWeenieObject *pTool, CWeenieObject *pTarget)
 {
 	// Save these for later as we may have to send a confirmation
@@ -1209,7 +1219,7 @@ int CPlayerWeenie::UseEx(bool bConfirmed)
 					}
 					catch (...)
 					{
-						//SERVER_ERROR << "Error in UseEx for mana stones"; //Used in easy logging currently not ported over from GDLE
+						SERVER_ERROR << "Error in UseEx for mana stones"; //Used in easy logging currently not ported over from GDLE
 					}
 
 					manaToApplyToEach = max(1, manaToApplyToEach); // for when manaToDistribute / itemsNeedingMana rounds down to 0, apply 1 mana until we're out
@@ -1542,10 +1552,10 @@ int CPlayerWeenie::UseEx(bool bConfirmed)
 				{
 					g_pWorld->BroadcastLocal(GetLandcell(), text);
 				}
-				/*
+				
 				IMBUE_LOG << "P:" << InqStringQuality(NAME_STRING, "") << " SL:" << skillLevel << " T:" << pTarget->InqStringQuality(NAME_STRING, "") << " TW:" << itemWorkmanship << " TT:" << amountOfTimesTinkered <<
 				" M:" << pTool->InqStringQuality(NAME_STRING, "") << " MW:" << toolWorkmanship << " %:" << successChance << " Roll:" << successRoll << " S/F:" << (successChance ? "TRUE" : "FALSE");
-				*/
+				
 				break;
 			}
 			}
@@ -1609,11 +1619,10 @@ int CPlayerWeenie::UseEx(bool bConfirmed)
 					g_pWorld->BroadcastLocal(GetLandcell(), text);
 				}
 
-				/*
-				Logger
+				
 				IMBUE_LOG << "P:" << InqStringQuality(NAME_STRING, "") << " SL:" << skillLevel << " T:" << pTarget->InqStringQuality(NAME_STRING, "") << " TW:" << itemWorkmanship << " TT:" << amountOfTimesTinkered <<
 				" M:" << pTool->InqStringQuality(NAME_STRING, "") << " MW:" << toolWorkmanship << " %:" << successChance << " Roll:" << successRoll << " S/F:" << (successChance ? "TRUE" : "FALSE");
-				*/
+				
 
 				break;
 			}
@@ -3307,8 +3316,12 @@ void CPlayerWeenie::SetLoginPlayerQualities()
 				 m_Qualities.SetSkillLevel(entry->first, 0);
 			}
 		}
-		
-		//End of temporary code
+
+		if (m_Qualities.GetIID(CONTAINER_IID, 0))
+		{
+			m_Qualities.RemoveInstanceID(CONTAINER_IID);
+		}
+
 
 	g_pAllegianceManager->SetWeenieAllegianceQualities(this);
 	m_Qualities.SetFloat(LOGIN_TIMESTAMP_FLOAT, Timer::cur_time);
@@ -3349,12 +3362,17 @@ void CPlayerWeenie::SetLoginPlayerQualities()
 
 	if (IsChunky())
 	{
-		m_Qualities.SetFloat(DEFAULT_SCALE_FLOAT, 0.5);
+		m_Qualities.SetFloat(DEFAULT_SCALE_FLOAT, 1.1);
+
 	}
 	else
 	{
 		m_Qualities.SetFloat(DEFAULT_SCALE_FLOAT, 1);
+		m_Qualities.SetInt(ALLEGIANCE_RANK_INT, 10);
+		m_Qualities.SetInt(ALLEGIANCE_FOLLOWERS_INT, 500);
+		
 	}
+
 
 	if (IsAdvocate())
 	{
@@ -3383,7 +3401,8 @@ void CPlayerWeenie::SetLoginPlayerQualities()
 
 		m_Qualities.SetBool(SPELL_COMPONENTS_REQUIRED_BOOL, FALSE);
 		m_Qualities.SetInt(BONDED_INT, 1); //do not drop items on death
-		//m_Qualities.SetFloat(DEFAULT_SCALE_FLOAT, 0.5);// 
+		m_Qualities.SetFloat(DEFAULT_SCALE_FLOAT, 1.2);
+
 
 	}
 	else

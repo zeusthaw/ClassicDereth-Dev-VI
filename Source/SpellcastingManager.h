@@ -38,6 +38,7 @@ struct SpellCastData
 	bool uses_mana = true;
 	bool equipped = false;
 	WORD serial = 0;
+	double next_update = Timer::cur_time;
 };
 
 class CSpellcastingManager
@@ -81,15 +82,16 @@ public:
 	int LaunchBoltProjectile(DWORD wcid);
 	int LaunchRingProjectiles(DWORD wcid);
 	void PerformCastParticleEffects();
-	int LaunchSpellEffect();
+	void PerformFellowCastParticleEffects(Fellowship *fellow);
+	int LaunchSpellEffect(bool bFizzled);
 	bool DoTransferSpell(CWeenieObject *other, const TransferSpellEx *meta);
 	bool AdjustVital(CWeenieObject *target);
 	void SendAdjustVitalText(CWeenieObject *target, int amount, const char *vitalName);
 	void TransferVitalPercent(CWeenieObject *target, float drainPercent, float infusePercent, STypeAttribute2nd attribute);
 	void SendTransferVitalPercentText(CWeenieObject *target, int drained, int infused, bool reversed, const char *vitalName);
 	//void SendAdjustedVitalText(CWeenieObject *target, unsigned int amount, STypeAttribute2nd attribute, bool beneficial);
-	Position GetSpellProjectileSpawnPosition(CSpellProjectile *pProjectile, CWeenieObject *pTarget, float *pDistToTarget);
-	Vector GetSpellProjectileSpawnVelocity(Position *pSpawnPosition, CWeenieObject *pTarget, float speed, bool tracked, bool gravity, Vector *pTargetDir);
+	Position GetSpellProjectileSpawnPosition(CSpellProjectile *pProjectile, CWeenieObject *pTarget, float *pDistToTarget, double dDir, bool bRing);
+	Vector GetSpellProjectileSpawnVelocity(Position *pSpawnPosition, CWeenieObject *pTarget, float speed, bool tracked, bool gravity, Vector *pTargetDir, double dDir, bool bRing);
 	void Update();
 
 	DWORD DetermineSkillLevelForSpell();
@@ -117,4 +119,5 @@ public:
 	std::list<SpellCastingMotion> m_PendingMotions;
 	std::map<DWORD, DWORD> m_UsedComponents;
 	bool m_bTurningToObject = false;
+	bool m_bTurned = false;
 };

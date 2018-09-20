@@ -23,14 +23,8 @@
 #include "Player.h"
 #include "GameEventManager.h"
 #include "House.h"
-<<<<<<< HEAD
 #include "easylogging++.h"
-<<<<<<< HEAD
 #include "..\RecipeFactory.h"
-=======
->>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
-=======
->>>>>>> parent of 9df554b... Merged in GDLE !movetome cmd and GDLE Recipe tools, also added new Launcher ICON created by Hotdog
 
 // should all be encapsulated realistically, but we aren't going to multi-instance the server...
 CDatabase *g_pDB = NULL;
@@ -53,6 +47,7 @@ CInferredCellData *g_pCellDataEx = NULL;
 TURBINEPORTAL *g_pPortal = NULL;
 TURBINECELL *g_pCell = NULL;
 CHouseManager *g_pHouseManager = NULL;
+RecipeFactory *g_pRecipeFactory = NULL;
 
 CPhatServer::CPhatServer(const char *configFilePath)
 {
@@ -98,7 +93,7 @@ DWORD CPhatServer::InternalThreadProc()
 	Random::Init();
 
 	Init();
-	
+
 	DWORD sleepTime = g_pConfig->FastTick() ? 0 : 1;
 
 	while (WaitForSingleObject(m_hQuitEvent, 0) != WAIT_OBJECT_0)
@@ -152,6 +147,9 @@ bool CPhatServer::Init()
 	g_pTreasureFactory = new CTreasureFactory();
 	g_pTreasureFactory->Initialize();
 
+	g_pRecipeFactory = new RecipeFactory();
+	g_pRecipeFactory->Initialize();
+
 	g_pDB = new CDatabase(); // Old, dumb, bad
 
 	g_pDBIO = new CDatabaseIO();
@@ -183,7 +181,8 @@ bool CPhatServer::Init()
 	g_ClothingCache.LoadAll();
 	//#endif
 
-	LOG(Temp, Normal, "The server is now online.\n");
+	WINLOG(Temp, Normal, "The server is now online.\n");
+	SERVER_INFO << "The server is now online.";
 
 #if 0
 	FILE *fp = fopen("d:\\temp\\houses.bin", "wb");
@@ -368,16 +367,19 @@ void CPhatServer::InitializeSocket(unsigned short port, in_addr address)
 		localhost.sin_port = htons(port);
 		if (!bind(m_sockets[0], (struct sockaddr *)&localhost, sizeof(SOCKADDR_IN)))
 		{
-			LOG(Temp, Normal, "Bound to port %u!\n", port);
+			WINLOG(Temp, Normal, "Bound to port %u!\n", port);
+			SERVER_INFO << "Bound to port" << port << "!";
 			break;
 		}
-		LOG(Temp, Normal, "Failed bind on port %u!\n", port);
+		WINLOG(Temp, Normal, "Failed bind on port %u!\n", port);
+		SERVER_ERROR << "Failed bind on port:" << port;
 		port++;
 	}
 
 	if (port == failport)
 	{
-		LOG(Temp, Normal, "Failure to bind socket!\n");
+		WINLOG(Temp, Normal, "Failure to bind socket!\n");
+		SERVER_ERROR << "Failed bind on socket";
 	}
 	else
 	{
@@ -391,7 +393,8 @@ void CPhatServer::InitializeSocket(unsigned short port, in_addr address)
 			localhost.sin_port = htons(basePort + i);
 			if (bind(m_sockets[i], (struct sockaddr *)&localhost, sizeof(SOCKADDR_IN)))
 			{
-				LOG(Temp, Normal, "Failure to bind socket port %d!\n", basePort + i);
+				WINLOG(Temp, Normal, "Failure to bind socket port %d!\n", basePort + i);
+				SERVER_ERROR << "Failed bind on socket port:" << (basePort + i);
 			}
 		}
 	}
@@ -414,7 +417,8 @@ void CPhatServer::SystemBroadcast(char *text)
 	if (!g_pNetwork || !g_pWorld)
 		return;
 
-	LOG(Temp, Normal, "Broadcast, \"%s\"\n", text);
+	WINLOG(Temp, Normal, "Broadcast, \"%s\"\n", text);
+	SERVER_INFO << "Broadcast:" << text;
 	g_pWorld->BroadcastGlobal(ServerBroadcast("System", text, LTT_DEFAULT), PRIVATE_MSG);
 }
 

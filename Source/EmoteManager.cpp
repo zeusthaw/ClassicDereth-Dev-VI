@@ -1,4 +1,3 @@
-
 #include "StdAfx.h"
 #include "EmoteManager.h"
 #include "WeenieObject.h"

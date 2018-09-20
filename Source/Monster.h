@@ -46,13 +46,10 @@ public:
 
 	std::map<DWORD, int> m_aDamageSources;
 	virtual void OnTookDamage(DamageEventData &damageData) override;
-	void UpdateDamageList(DamageEventData & damageData);
-	//void UpdateDamageList(DamageEventData &damageData);
-	//virtual void OnRegen(STypeAttribute2nd currentAttrib, int newAmount) override;
+	void UpdateDamageList(DamageEventData &damageData);
+	virtual void OnRegen(STypeAttribute2nd currentAttrib, int newAmount) override;
 
-	//virtual void GivePerksForKill(CWeenieObject *pKilled) override;
-
-	void OnRegen(STypeAttribute2nd currentAttrib, int newAmount);
+	virtual void GivePerksForKill(CWeenieObject *pKilled) override;
 
 	virtual void OnIdentifyAttempted(CWeenieObject *other) override;
 	virtual void OnResistSpell(CWeenieObject *attacker) override;
@@ -84,11 +81,14 @@ public:
 	virtual void GenerateDeathLoot(CCorpseWeenie *pCorpse);
 
 	virtual BOOL DoCollision(const class ObjCollisionProfile &prof);
-	//virtual int AdjustHealth(int amount) override;
+	virtual int AdjustHealth(int amount) override;
 
 	CCorpseWeenie *CreateCorpse(bool visible = true);
 
 	bool IsAttackMotion(DWORD motion);
+
+	DWORD m_highestDamageSource = 0;
+	int m_totalDamageTaken = 0;
 
 	DWORD m_LastAttackTarget = 0;
 	DWORD m_LastAttackHeight = 1;
@@ -139,7 +139,7 @@ public:
 	void FinishGiveItem(CContainerWeenie *targetContainer, CWeenieObject *sourceItem, DWORD amountToTransfer);
 
 private:
-	//void CheckRegeneration(bool &bRegenerateNext, double &lastRegen, float regenRate, STypeAttribute2nd currentAttrib, STypeAttribute2nd maxAttrib);
+	void CheckRegeneration(bool &bRegenerateNext, double &lastRegen, float regenRate, STypeAttribute2nd currentAttrib, STypeAttribute2nd maxAttrib);
 
 	bool m_bRegenHealthNext = false;
 	double m_fLastHealthRegen = 0.0;

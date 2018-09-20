@@ -505,6 +505,10 @@ DWORD PublicWeenieDesc::CalculateBitfieldFromQualities(CACQualities *qualities)
 	case Lockpick_WeenieType:
 		bitfield |= BF_LOCKPICK;
 		break;
+	case Food_WeenieType:
+		bitfield |= BF_FOOD;
+		break;
+
 	}
 
 	if ((qualities->GetInt(ITEM_TYPE_INT, 0) & TYPE_CONTAINER) && qualities->GetBool(LOCKED_BOOL, FALSE) == FALSE)

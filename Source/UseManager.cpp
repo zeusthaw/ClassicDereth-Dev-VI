@@ -329,6 +329,7 @@ void CActivationUseEvent::OnReadyToUse()
 	if (target)
 	{
 		target->Activate(_weenie->GetID());
+		target->DoUseEmote(_weenie);
 	}
 
 	Done();

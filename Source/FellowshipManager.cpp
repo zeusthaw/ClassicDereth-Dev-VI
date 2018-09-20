@@ -41,7 +41,7 @@ DEFINE_PACK(Fellowship)
 	pWriter->Write<int>(_locked);
 
 	_fellows_departed.Pack(pWriter);
-
+	LockedFellowshipList.Pack(pWriter);
 }
 
 DEFINE_UNPACK(Fellowship)
@@ -58,7 +58,7 @@ void Fellowship::UpdateData()
 
 	for (auto &entry : _fellowship_table)
 	{
-		CPlayerWeenie *player = g_pWorld->FindPlayer(entry.first);
+		CPlayerWeenie * player = g_pWorld->FindPlayer(entry.first);
 		if (player)
 		{
 			entry.second._name = player->GetName();
@@ -108,7 +108,7 @@ void Fellowship::UpdateData()
 	for (auto &entry : _fellowship_table)
 	{
 		if (_even_xp_split)
-			entry.second.splitPercent = FellowshipManager::GetEvenSplitXPPctg((DWORD) _fellowship_table.size());
+			entry.second.splitPercent = FellowshipManager::GetEvenSplitXPPctg((DWORD)_fellowship_table.size());
 		else
 			entry.second.splitPercent = FellowshipManager::GetExperienceProportion(entry.second._level) / (double)xpPortionSum;
 	}
@@ -159,7 +159,7 @@ void Fellowship::GiveXP(CWeenieObject *source, long long amount, bool bShowText)
 			{
 				double degradeMod = CalculateDegradeMod(source, other);
 
-				long long xpGained = (long long) (amount * entry.second.splitPercent * degradeMod);
+				long long xpGained = (long long)(amount * entry.second.splitPercent * degradeMod);
 				if (xpGained > 0)
 					other->GiveXP(xpGained, bShowText);
 			}
@@ -199,6 +199,7 @@ void Fellowship::TickUpdate()
 #endif
 	UpdateData();
 
+
 	BinaryWriter updateMessage;
 	updateMessage.Write<DWORD>(0x2BE);
 	Pack(&updateMessage);
@@ -223,16 +224,43 @@ void Fellowship::SendUpdate(int updateType)
 	switch (updateType)
 	{
 	case Fellow_UpdateFull:
-		{
-			BinaryWriter updateMessage;
-			updateMessage.Write<DWORD>(0x2BE);
-			Pack(&updateMessage);
+	{
+		BinaryWriter updateMessage;
+		updateMessage.Write<DWORD>(0x2BE);
+		Pack(&updateMessage);
 
+		for (auto &entry : _fellowship_table)
+		{
+			CPlayerWeenie *player = g_pWorld->FindPlayer(entry.first);
+			if (player)
+				player->SendNetMessage(&updateMessage, PRIVATE_MSG, TRUE, FALSE);
+		}
+	}
+	}
+}
+
+void Fellowship::VitalsUpdate()
+{
+	for (auto &entry : _fellowship_table)
+	{
+		if (CPlayerWeenie *player = g_pWorld->FindPlayer(entry.first))
+		{
+			DWORD fellow_id = player->GetID();
+
+			Fellow *f = _fellowship_table.lookup(fellow_id);
+
+			BinaryWriter updateMessage;
+			updateMessage.Write<DWORD>(0x2C0);
+			updateMessage.Write<DWORD>(fellow_id);
+			f->Pack(&updateMessage);
+			updateMessage.Write<DWORD>(Fellow_UpdateVitals);
 			for (auto &entry : _fellowship_table)
 			{
-				CPlayerWeenie *player = g_pWorld->FindPlayer(entry.first);
-				if (player)
+				if (CPlayerWeenie *player = g_pWorld->FindPlayer(entry.first))
+				{
+					// partial update to everyone in fellow
 					player->SendNetMessage(&updateMessage, PRIVATE_MSG, TRUE, FALSE);
+				}
 			}
 		}
 	}
@@ -348,7 +376,7 @@ void Fellowship::Recruit(DWORD recruitee_id)
 	recruitMessage.Write<DWORD>(recruitee_id);
 	f->Pack(&recruitMessage);
 	recruitMessage.Write<DWORD>(Fellow_UpdateFull);
-	
+
 	for (auto &entry : _fellowship_table)
 	{
 		if (CPlayerWeenie *player = g_pWorld->FindPlayer(entry.first))
@@ -374,8 +402,11 @@ void Fellowship::Recruit(DWORD recruitee_id)
 
 void Fellowship::ChangeOpen(BOOL open)
 {
+	if (_open_fellow == open)
+		return;
+
 	_open_fellow = open;
-	
+
 	std::string leader_name;
 	CWeenieObject *leader_weenie = g_pWorld->FindPlayer(_leader);
 	if (leader_weenie)
@@ -424,16 +455,17 @@ void Fellowship::Chat(DWORD sender_id, const char *text)
 	CWeenieObject *sender_weenie = g_pWorld->FindPlayer(sender_id);
 	if (sender_weenie)
 	{
-		sender_weenie->SendNetMessage(ServerText(csprintf("You say to your fellowship, \"%s\"", text), LTT_FELLOWSHIP_CHANNEL), PRIVATE_MSG, FALSE, TRUE);
-
 		std::string sender_name = sender_weenie->GetName();
+
+		sender_weenie->SendNetMessage(ChannelChat(Fellow_ChannelID, NULL, text), PRIVATE_MSG, FALSE, TRUE);
+
 		for (auto &entry : _fellowship_table)
 		{
 			if (entry.first != sender_id)
 			{
 				CPlayerWeenie *player = g_pWorld->FindPlayer(entry.first);
 				if (player)
-					player->SendNetMessage(ServerText(csprintf("%s says to your fellowship, \"%s\"", sender_name.c_str(), text), LTT_FELLOWSHIP_CHANNEL), PRIVATE_MSG, FALSE, TRUE);
+					player->SendNetMessage(ChannelChat(Fellow_ChannelID, sender_name.c_str(), text), PRIVATE_MSG, FALSE, TRUE);
 			}
 		}
 	}
@@ -515,7 +547,7 @@ int FellowshipManager::Create(const std::string &name, DWORD creator_id, BOOL sh
 }
 
 int FellowshipManager::Disband(const std::string &name, DWORD disbander_id)
-{	
+{
 	std::unordered_map<std::string, Fellowship *>::iterator i = m_Fellowships.find(name);
 	if (i == m_Fellowships.end())
 		return WERROR_FELLOWSHIP_NO_FELLOWSHIP;

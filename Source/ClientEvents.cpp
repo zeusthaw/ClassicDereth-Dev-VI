@@ -5,6 +5,7 @@
 #include "ClientCommands.h"
 #include "ClientEvents.h"
 #include "World.h"
+#include <chrono>
 
 #include "Database.h"
 #include "DatabaseIO.h"
@@ -24,6 +25,7 @@
 #include "House.h"
 #include "SpellcastingManager.h"
 #include "TradeManager.h"
+#include <chrono>
 
 #include "Config.h"
 
@@ -132,7 +134,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 	if (!m_pClient->HasCharacter(char_weenie_id))
 	{
 		LoginError(13); // update error codes
-		LOG(Client, Warning, "Logging in with a character that doesn't belong to this account!\n");
+		SERVER_WARN << szAccount << "Logging in with a character that doesn't belong to this account!\n";
 		return;
 	}
 
@@ -140,7 +142,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 	{
 		// LOG(Temp, Normal, "Character already logged in!\n");
 		LoginError(13); // update error codes
-		LOG(Client, Warning, "Login request, but character already logged in!\n");
+		SERVER_WARN << szAccount << "Login request, but character already logged in!\n";
 		return;
 	}
 
@@ -158,7 +160,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 	if (!m_pPlayer->Load())
 	{
 		LoginError(13); // update error codes
-		LOG(Client, Warning, "Login request, but character failed to load!\n");
+		SERVER_WARN << szAccount << "Login request, but character failed to load!\n";
 
 		delete m_pPlayer;
 
@@ -169,7 +171,6 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 	m_pPlayer->RecalculateEncumbrance();
 	m_pPlayer->LoginCharacter();
 	
-<<<<<<< HEAD
 	last_age_update = chrono::system_clock::to_time_t(chrono::system_clock::now());
 
 	// give characters created before creation timestamp was being set a timestamp and DOB from their DB date_created
@@ -188,6 +189,13 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			m_pPlayer->NotifyStringStatUpdated(DATE_OF_BIRTH_STRING);
 		}
 	}
+
+	if (!m_pPlayer->m_Qualities.GetInt(CREATION_TIMESTAMP_INT, 0))
+	{
+		m_pPlayer->m_Qualities.SetFloat(GLOBAL_XP_MOD_FLOAT, 1.0);
+		m_pPlayer->NotifyFloatStatUpdated(GLOBAL_XP_MOD_FLOAT);
+	}
+
 
 	last_age_update = chrono::system_clock::to_time_t(chrono::system_clock::now());
 
@@ -260,7 +268,10 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			wielded->m_Qualities.SetFloat(SLAYER_DAMAGE_BONUS_FLOAT, 1.4);
 		}
 
-<<<<<<< HEAD
+
+
+
+
 		//Elemental Yumi Bow Fix
 		DWORD yumiSlash;
 		DWORD yumiPierce;
@@ -271,8 +282,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		DWORD yumiFlame;
 		if (wielded->m_Qualities.InqDataID(SETUP_DID, yumiSlash) && yumiSlash == 33559028)
 		{
-			wielded->m_Qualities.SetDataID(ICON_DID, 0x0060060AC);//Compound Bow Icon//
-			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			//wielded->m_Qualities.SetDataID(ICON_DID, 0x0060060AC);//Compound Bow Icon//
+			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			wielded->m_Qualities.SetString(NAME_STRING, "Slicing Yumi");//Re-Write the name to match Item//
 			wielded->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_SLASHING);//Elemental UI Effect//
 			wielded->m_Qualities.SetInt(DAMAGE_TYPE_INT, SLASH_DAMAGE_TYPE);
@@ -281,8 +292,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		}
 		if (wielded->m_Qualities.InqDataID(SETUP_DID, yumiPierce) && yumiPierce == 33559027)
 		{
-			wielded->m_Qualities.SetDataID(ICON_DID, 100677125);//Compound Bow Icon//
-			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			//wielded->m_Qualities.SetDataID(ICON_DID, 100677125);//Compound Bow Icon//
+			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			wielded->m_Qualities.SetString(NAME_STRING, "Piercing Yumi");//Re-Write the name to match Item//
 			wielded->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_PIERCING);//Elemental UI Effect//
 			wielded->m_Qualities.SetInt(DAMAGE_TYPE_INT, PIERCE_DAMAGE_TYPE);
@@ -291,8 +302,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		}
 		if (wielded->m_Qualities.InqDataID(SETUP_DID, yumiBludge) && yumiBludge == 33559030)
 		{
-			wielded->m_Qualities.SetDataID(ICON_DID, 100677123);//Compound Bow Icon//
-			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			//wielded->m_Qualities.SetDataID(ICON_DID, 100677123);//Compound Bow Icon//
+			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			wielded->m_Qualities.SetString(NAME_STRING, "Smashing Yumi");//Re-Write the name to match Item//
 			wielded->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_BLUDGEONING);//Elemental UI Effect//
 			wielded->m_Qualities.SetInt(DAMAGE_TYPE_INT, BLUDGEON_DAMAGE_TYPE);
@@ -300,8 +311,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		}
 		if (wielded->m_Qualities.InqDataID(SETUP_DID, yumiAcid) && yumiAcid == 33559029)
 		{
-			wielded->m_Qualities.SetDataID(ICON_DID, 100677121);//Compound Bow Icon//
-			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			//wielded->m_Qualities.SetDataID(ICON_DID, 100677121);//Compound Bow Icon//
+			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			wielded->m_Qualities.SetString(NAME_STRING, "Stinging Yumi");//Re-Write the name to match Item//
 			wielded->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_ACID);//Elemental UI Effect//
 			wielded->m_Qualities.SetInt(DAMAGE_TYPE_INT, ACID_DAMAGE_TYPE);
@@ -309,8 +320,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		}
 		if (wielded->m_Qualities.InqDataID(SETUP_DID, yumiElectric) && yumiElectric == 33559031)
 		{
-			wielded->m_Qualities.SetDataID(ICON_DID, 100677118);//Compound Bow Icon//
-			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			//wielded->m_Qualities.SetDataID(ICON_DID, 100677118);//Compound Bow Icon//
+			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			wielded->m_Qualities.SetString(NAME_STRING, "Sparking Yumi");//Re-Write the name to match Item//
 			wielded->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_LIGHTNING);//Elemental UI Effect//
 			wielded->m_Qualities.SetInt(DAMAGE_TYPE_INT, ELECTRIC_DAMAGE_TYPE);
@@ -318,8 +329,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		}
 		if (wielded->m_Qualities.InqDataID(SETUP_DID, yumiFrost) && yumiFrost == 33559026)
 		{
-			wielded->m_Qualities.SetDataID(ICON_DID, 100677119);//Compound Bow Icon//
-			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			//wielded->m_Qualities.SetDataID(ICON_DID, 100677119);//Compound Bow Icon//
+			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			wielded->m_Qualities.SetString(NAME_STRING, "Freezing Yumi");//Re-Write the name to match Item//
 			wielded->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FROST);//Elemental UI Effect//
 			wielded->m_Qualities.SetInt(DAMAGE_TYPE_INT, COLD_DAMAGE_TYPE);
@@ -327,8 +338,8 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		}
 		if (wielded->m_Qualities.InqDataID(SETUP_DID, yumiFlame) && yumiFlame == 33559025)
 		{
-			wielded->m_Qualities.SetDataID(ICON_DID, 100677122);//Compound Bow Icon//
-			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			//wielded->m_Qualities.SetDataID(ICON_DID, 100677122);//Compound Bow Icon//
+			wielded->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			wielded->m_Qualities.SetString(NAME_STRING, "Smoldering Yumi");//Re-Write the name to match Item//
 			wielded->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FIRE);//Elemental UI Effect//
 			wielded->m_Qualities.SetInt(DAMAGE_TYPE_INT, FIRE_DAMAGE_TYPE);
@@ -418,8 +429,6 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		}
 
 
-=======
->>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 		//Spadone Fix
 		DWORD spadonePhysical;
 		DWORD spadoneElectric;
@@ -462,7 +471,6 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			wielded->m_Qualities.SetString(NAME_STRING, "Flame Spadone");//Re-Write the name to match Item//
 		}
 
-<<<<<<< HEAD
 		//  Elemental Staff Fix  //
 		int staffSlash;
 		int staffPierce;
@@ -530,8 +538,6 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			wielded->m_Qualities.SetDataID(SETUP_DID, 0x0200184D);
 		}
 
-=======
->>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 	}
 
 	for (auto item : m_pPlayer->m_Items)
@@ -549,7 +555,6 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			item->m_Qualities.RemoveDataID(SPELL_DID);
 			item->m_Qualities.SetFloat(SLAYER_DAMAGE_BONUS_FLOAT, 1.4);
 		}
-<<<<<<< HEAD
 
 
 		//Elemental Yumi Bow Fix
@@ -563,7 +568,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		if (item->m_Qualities.InqDataID(SETUP_DID, yumiSlash) && yumiSlash == 33559028)
 		{
 			item->m_Qualities.SetDataID(ICON_DID, 0x0060060AC);//Compound Bow Icon//
-			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			item->m_Qualities.SetString(NAME_STRING, "Slicing Yumi");//Re-Write the name to match Item//
 			item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_SLASHING);//Elemental UI Effect//
 			item->m_Qualities.SetInt(DAMAGE_TYPE_INT, SLASH_DAMAGE_TYPE);
@@ -573,7 +578,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		if (item->m_Qualities.InqDataID(SETUP_DID, yumiPierce) && yumiPierce == 33559027)
 		{
 			item->m_Qualities.SetDataID(ICON_DID, 100677125);//Compound Bow Icon//
-			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			item->m_Qualities.SetString(NAME_STRING, "Piercing Yumi");//Re-Write the name to match Item//
 			item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_PIERCING);//Elemental UI Effect//
 			item->m_Qualities.SetInt(DAMAGE_TYPE_INT, PIERCE_DAMAGE_TYPE);
@@ -583,7 +588,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		if (item->m_Qualities.InqDataID(SETUP_DID, yumiBludge) && yumiBludge == 33559030)
 		{
 			item->m_Qualities.SetDataID(ICON_DID, 100677123);//Compound Bow Icon//
-			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			item->m_Qualities.SetString(NAME_STRING, "Smashing Yumi");//Re-Write the name to match Item//
 			item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_BLUDGEONING);//Elemental UI Effect//
 			item->m_Qualities.SetInt(DAMAGE_TYPE_INT, BLUDGEON_DAMAGE_TYPE);
@@ -592,7 +597,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		if (item->m_Qualities.InqDataID(SETUP_DID, yumiAcid) && yumiAcid == 33559029)
 		{
 			item->m_Qualities.SetDataID(ICON_DID, 100677121);//Compound Bow Icon//
-			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			item->m_Qualities.SetString(NAME_STRING, "Stinging Yumi");//Re-Write the name to match Item//
 			item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_ACID);//Elemental UI Effect//
 			item->m_Qualities.SetInt(DAMAGE_TYPE_INT, ACID_DAMAGE_TYPE);
@@ -601,7 +606,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		if (item->m_Qualities.InqDataID(SETUP_DID, yumiElectric) && yumiElectric == 33559031)
 		{
 			item->m_Qualities.SetDataID(ICON_DID, 100677118);//Compound Bow Icon//
-			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			item->m_Qualities.SetString(NAME_STRING, "Sparking Yumi");//Re-Write the name to match Item//
 			item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_LIGHTNING);//Elemental UI Effect//
 			item->m_Qualities.SetInt(DAMAGE_TYPE_INT, ELECTRIC_DAMAGE_TYPE);
@@ -610,7 +615,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		if (item->m_Qualities.InqDataID(SETUP_DID, yumiFrost) && yumiFrost == 33559026)
 		{
 			item->m_Qualities.SetDataID(ICON_DID, 100677119);//Compound Bow Icon//
-			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			item->m_Qualities.SetString(NAME_STRING, "Freezing Yumi");//Re-Write the name to match Item//
 			item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FROST);//Elemental UI Effect//
 			item->m_Qualities.SetInt(DAMAGE_TYPE_INT, COLD_DAMAGE_TYPE);
@@ -619,7 +624,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		if (item->m_Qualities.InqDataID(SETUP_DID, yumiFlame) && yumiFlame == 33559025)
 		{
 			item->m_Qualities.SetDataID(ICON_DID, 100677122);//Compound Bow Icon//
-			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+			item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 			item->m_Qualities.SetString(NAME_STRING, "Smoldering Yumi");//Re-Write the name to match Item//
 			item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FIRE);//Elemental UI Effect//
 			item->m_Qualities.SetInt(DAMAGE_TYPE_INT, FIRE_DAMAGE_TYPE);
@@ -709,9 +714,6 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 		}
 
 		//Spadone Fix//
-=======
-		//Spadone Fix
->>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 		DWORD spadonePhysical; 
 		DWORD spadoneElectric; 
 		DWORD spadoneAcid;  
@@ -752,7 +754,6 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FIRE);//Elemental UI Effect//
 			item->m_Qualities.SetString(NAME_STRING, "Flame Spadone");//Re-Write the name to match Item//
 		}
-<<<<<<< HEAD
 
 		//  Elemental Staff Fix  //
 		int staffSlash;
@@ -821,8 +822,6 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 			item->m_Qualities.SetDataID(SETUP_DID, 0x0200184D);
 		}
 
-=======
->>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 	}
 
 	for (auto pack : m_pPlayer->m_Packs)
@@ -848,7 +847,6 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 					item->m_Qualities.SetFloat(SLAYER_DAMAGE_BONUS_FLOAT, 1.4);
 				}
 
-<<<<<<< HEAD
 				//Elemental Yumi XBow Fix
 				DWORD yumiXSlash;
 				DWORD yumiXPierce;
@@ -860,7 +858,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiXSlash) && yumiXSlash == 33559028)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 0x0060060AC);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Slicing Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_SLASHING);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, SLASH_DAMAGE_TYPE);
@@ -870,7 +868,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiXPierce) && yumiXPierce == 33559027)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677125);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Piercing Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_PIERCING);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, PIERCE_DAMAGE_TYPE);
@@ -880,7 +878,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiXBludge) && yumiXBludge == 33559030)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677123);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Smashing Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_BLUDGEONING);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, BLUDGEON_DAMAGE_TYPE);
@@ -889,7 +887,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiXAcid) && yumiXAcid == 33559029)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677121);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Stinging Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_ACID);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, ACID_DAMAGE_TYPE);
@@ -898,7 +896,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiXElectric) && yumiXElectric == 33559031)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677118);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Sparking Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_LIGHTNING);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, ELECTRIC_DAMAGE_TYPE);
@@ -907,7 +905,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiXFrost) && yumiXFrost == 33559026)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677119);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Freezing Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FROST);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, COLD_DAMAGE_TYPE);
@@ -916,7 +914,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiXFlame) && yumiXFlame == 33559025)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677122);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Smoldering Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FIRE);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, FIRE_DAMAGE_TYPE);
@@ -934,7 +932,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiSlash) && yumiSlash == 33559028)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 0x0060060AC);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Slicing Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_SLASHING);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, SLASH_DAMAGE_TYPE);
@@ -944,7 +942,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiPierce) && yumiPierce == 33559027)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677125);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Piercing Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_PIERCING);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, PIERCE_DAMAGE_TYPE);
@@ -954,7 +952,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiBludge) && yumiBludge == 33559030)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677123);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Smashing Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_BLUDGEONING);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, BLUDGEON_DAMAGE_TYPE);
@@ -963,7 +961,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiAcid) && yumiAcid == 33559029)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677121);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Stinging Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_ACID);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, ACID_DAMAGE_TYPE);
@@ -972,7 +970,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiElectric) && yumiElectric == 33559031)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677118);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Sparking Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_LIGHTNING);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, ELECTRIC_DAMAGE_TYPE);
@@ -981,7 +979,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiFrost) && yumiFrost == 33559026)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677119);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Freezing Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FROST);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, COLD_DAMAGE_TYPE);
@@ -990,7 +988,7 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				if (item->m_Qualities.InqDataID(SETUP_DID, yumiFlame) && yumiFlame == 33559025)
 				{
 					item->m_Qualities.SetDataID(ICON_DID, 100677122);//Compound Bow Icon//
-					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+					item->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 					item->m_Qualities.SetString(NAME_STRING, "Smoldering Yumi");//Re-Write the name to match Item//
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FIRE);//Elemental UI Effect//
 					item->m_Qualities.SetInt(DAMAGE_TYPE_INT, FIRE_DAMAGE_TYPE);
@@ -1122,8 +1120,6 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 				}
 				*/
 
-=======
->>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 				//Spadone Fix
 				DWORD spadonePhysical;
 				DWORD spadoneElectric;
@@ -1165,7 +1161,6 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 					item->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FIRE);//Elemental UI Effect//
 					item->m_Qualities.SetString(NAME_STRING, "Flame Spadone");//Re-Write the name to match Item//
 				}
-<<<<<<< HEAD
 
 				//  Elemental Staff Fix  //
 				int staffSlash;
@@ -1234,28 +1229,37 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 					item->m_Qualities.SetDataID(SETUP_DID, 0x0200184D);
 				}
 
-=======
->>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 			}
 		}
 	}
 
 	// give characters created before creation timestamp was being set a timestamp and DOB from their DB date_created
 	if (!m_pPlayer->m_Qualities.GetInt(CREATION_TIMESTAMP_INT, 0))
-=======
-	/*
-	if (*g_pConfig->WelcomePopup() != 0)
->>>>>>> parent of 9df554b... Merged in GDLE !movetome cmd and GDLE Recipe tools, also added new Launcher ICON created by Hotdog
 	{
-		BinaryWriter popupString;
-		popupString.Write<DWORD>(4);
-		popupString.WriteString(g_pConfig->WelcomePopup()); // "Welcome to GDL - Classic Dereth!"
-		m_pPlayer->SendNetMessage(&popupString, PRIVATE_MSG, FALSE, FALSE);
+		CharacterDesc_t char_info = g_pDBIO->GetCharacterInfo(m_pPlayer->GetID());
+		if (char_info.date_created) // check that the query got info, will be 0 if it didn't
+		{
+			time_t t = char_info.date_created;
+			m_pPlayer->m_Qualities.SetInt(CREATION_TIMESTAMP_INT, t);
+			m_pPlayer->NotifyIntStatUpdated(CREATION_TIMESTAMP_INT);
+
+			std::stringstream ss;
+			ss << std::put_time(std::localtime(&t), "%m/%d/%y %I:%M:%S %p."); // convert time to a string of format '01/01/18 11:59:59 AM.'
+			m_pPlayer->m_Qualities.SetString(DATE_OF_BIRTH_STRING, ss.str());
+			m_pPlayer->NotifyStringStatUpdated(DATE_OF_BIRTH_STRING);
+		}
 	}
-	*/
+
+	if (m_pPlayer->m_Qualities.GetInt(HERITAGE_GROUP_INT, 0) == Lugian_HeritageGroup)
+		m_pPlayer->m_Qualities.SetDataID(MOTION_TABLE_DID, 0x9000216);
+
+	if (m_pPlayer->m_Qualities.GetInt(HERITAGE_GROUP_INT, 0) == Empyrean_HeritageGroup && m_pPlayer->m_Qualities.GetDID(MOTION_TABLE_DID, 0x9000001) == 0x9000001)
+		m_pPlayer->m_Qualities.SetDataID(MOTION_TABLE_DID, 0x9000207);
+
 	m_pPlayer->SendText("Classic Dereth:E Now Enhanced with Source Edits provided by the GDLE Team!" SERVER_VERSION_NUMBER_STRING " " SERVER_VERSION_STRING, LTT_DEFAULT);
-	m_pPlayer->SendText("GDLE is Maintained by, ChosenOne, LikeableLime and Scribble, Contact them at https://discord.gg/WzGX348", LTT_DEFAULT);
+	m_pPlayer->SendText("GDLE is Maintained by, ChosenOne, LikeableLime, Scribble and the GDLE Dev Team. Contact them at https://discord.gg/WzGX348", LTT_DEFAULT);
 	m_pPlayer->SendText("Powered by GamesDeadLol(GDL). Not an official Asheron's Call server.", LTT_DEFAULT);
+	SendAllegianceMOTD();
 
 	/*
 	if (*g_pConfig->WelcomeMessage() != 0)
@@ -1265,6 +1269,106 @@ void CClientEvents::LoginCharacter(DWORD char_weenie_id, const char *szAccount)
 	*/
 
 	g_pWorld->CreateEntity(m_pPlayer);
+
+	//temporarily add all enchantments back from the character's wielded items
+	if (g_pConfig->SpellPurgeOnLogin())
+	{
+		for (auto item : m_pPlayer->m_Wielded)
+		{
+			if (item->m_Qualities._spell_book)
+			{
+				bool bShouldCast = true;
+
+				std::string name;
+				if (item->m_Qualities.InqString(CRAFTSMAN_NAME_STRING, name))
+				{
+					if (!name.empty() && name != item->InqStringQuality(NAME_STRING, ""))
+					{
+						bShouldCast = false;
+
+						m_pPlayer->NotifyWeenieErrorWithString(WERROR_ACTIVATION_NOT_CRAFTSMAN, name.c_str());
+					}
+				}
+
+				int difficulty;
+				difficulty = 0;
+				if (item->m_Qualities.InqInt(ITEM_DIFFICULTY_INT, difficulty, TRUE, FALSE))
+				{
+					DWORD skillLevel = 0;
+					if (!m_pPlayer->m_Qualities.InqSkill(ARCANE_LORE_SKILL, skillLevel, FALSE) || (int)skillLevel < difficulty)
+					{
+						bShouldCast = false;
+
+						m_pPlayer->NotifyWeenieError(WERROR_ACTIVATION_ARCANE_LORE_TOO_LOW);
+					}
+				}
+
+				if (bShouldCast)
+				{
+					difficulty = 0;
+					DWORD skillActivationTypeDID = 0;
+
+
+
+					if (item->m_Qualities.InqInt(ITEM_SKILL_LEVEL_LIMIT_INT, difficulty, TRUE, FALSE) && item->m_Qualities.InqDataID(ITEM_SKILL_LIMIT_DID, skillActivationTypeDID))
+					{
+						STypeSkill skillActivationType = SkillTable::OldToNewSkill((STypeSkill)skillActivationTypeDID);
+
+
+						DWORD skillLevel = 0;
+						if (!m_pPlayer->m_Qualities.InqSkill(skillActivationType, skillLevel, FALSE) || (int)skillLevel < difficulty)
+						{
+							bShouldCast = false;
+
+							m_pPlayer->NotifyWeenieErrorWithString(WERROR_ACTIVATION_SKILL_TOO_LOW, CachedSkillTable->GetSkillName(skillActivationType).c_str());
+						}
+					}
+				}
+
+				if (bShouldCast && item->InqIntQuality(ITEM_ALLEGIANCE_RANK_LIMIT_INT, 0) > item->InqIntQuality(ALLEGIANCE_RANK_INT, 0))
+				{
+					bShouldCast = false;
+					m_pPlayer->NotifyInventoryFailedEvent(item->GetID(), WERROR_ACTIVATION_RANK_TOO_LOW);
+				}
+
+				if (bShouldCast)
+				{
+					int heritageRequirement = item->InqIntQuality(HERITAGE_GROUP_INT, -1);
+					if (heritageRequirement != -1 && heritageRequirement != item->InqIntQuality(HERITAGE_GROUP_INT, 0))
+					{
+						bShouldCast = false;
+						std::string heritageString = item->InqStringQuality(ITEM_HERITAGE_GROUP_RESTRICTION_STRING, "of the correct heritage");
+						m_pPlayer->NotifyWeenieErrorWithString(WERROR_ACTIVATION_WRONG_RACE, heritageString.c_str());
+					}
+				}
+
+				int currentMana = 0;
+				if (bShouldCast && item->m_Qualities.InqInt(ITEM_CUR_MANA_INT, currentMana, TRUE, FALSE))
+				{
+					if (currentMana == 0)
+					{
+						bShouldCast = false;
+						m_pPlayer->NotifyWeenieError(WERROR_ACTIVATION_NOT_ENOUGH_MANA);
+					}
+					else
+						item->_nextManaUse = Timer::cur_time;
+				}
+
+				if (bShouldCast)
+				{
+					DWORD serial = 0;
+					serial |= ((DWORD)m_pPlayer->GetEnchantmentSerialByteForMask(item->InqIntQuality(LOCATIONS_INT, 0, TRUE)) << (DWORD)0);
+					serial |= ((DWORD)m_pPlayer->GetEnchantmentSerialByteForMask(item->InqIntQuality(CLOTHING_PRIORITY_INT, 0, TRUE)) << (DWORD)8);
+
+					for (auto &spellPage : item->m_Qualities._spell_book->_spellbook)
+					{
+						item->MakeSpellcastingManager()->CastSpellEquipped(m_pPlayer->GetID(), spellPage.first, (WORD)serial);
+					}
+				}
+			}
+		}
+	}
+
 	m_pPlayer->DebugValidate();
 
 	return;
@@ -1279,13 +1383,13 @@ void CClientEvents::Attack(DWORD target, DWORD height, float power)
 {
 	if (height <= 0 || height >= ATTACK_HEIGHT::NUM_ATTACK_HEIGHTS)
 	{
-		LOG(Temp, Warning, "Bad melee attack height %u sent by player 0x%08X\n", height, m_pPlayer->GetID());
+		SERVER_WARN << "Bad melee attack height %u sent by player 0x%08X\n", height, m_pPlayer->GetID();
 		return;
 	}
 
 	if (power < 0.0f || power > 1.0f)
 	{
-		LOG(Temp, Warning, "Bad melee attack power %f sent by player 0x%08X\n", power, m_pPlayer->GetID());
+		SERVER_WARN << "Bad melee attack power %f sent by player 0x%08X\n", power, m_pPlayer->GetID();
 		return;
 	}
 
@@ -1296,13 +1400,13 @@ void CClientEvents::MissileAttack(DWORD target, DWORD height, float power)
 {
 	if (height <= 0 || height >= ATTACK_HEIGHT::NUM_ATTACK_HEIGHTS)
 	{
-		LOG(Temp, Warning, "Bad missile attack height %u sent by player 0x%08X\n", height, m_pPlayer->GetID());
+		SERVER_WARN << "Bad missile attack height %u sent by player 0x%08X\n", height, m_pPlayer->GetID();
 		return;
 	}
 
 	if (power < 0.0f || power > 1.0f)
 	{
-		LOG(Temp, Warning, "Bad missile attack power %f sent by player 0x%08X\n", power, m_pPlayer->GetID());
+		SERVER_WARN << "Bad missile attack power %f sent by player 0x%08X\n", power, m_pPlayer->GetID();
 		return;
 	}
 
@@ -1449,28 +1553,28 @@ void CClientEvents::ChannelText(DWORD channel_id, const char *text)
 				return;
 
 			g_pFellowshipManager->Chat(fellowName, m_pPlayer->GetID(), text);
-			LOG(Client, Normal, "[%s] %s says (fellowship), \"%s\"\n", timestamp(), m_pPlayer->GetName().c_str(), text);
+			CHAT_LOG << m_pPlayer->GetName().c_str() << "says (fellowship)," << text;
 			break;
 		}
 
 	case Patron_ChannelID:
 		g_pAllegianceManager->ChatPatron(m_pPlayer->GetID(), text);
-		LOG(Client, Normal, "[%s] %s says (patron), \"%s\"\n", timestamp(), m_pPlayer->GetName().c_str(), text);
+		CHAT_LOG << m_pPlayer->GetName().c_str() << "says (patron)," << text;
 		break;
 
 	case Vassals_ChannelID:
 		g_pAllegianceManager->ChatVassals(m_pPlayer->GetID(), text);
-		LOG(Client, Normal, "[%s] %s says (vassals), \"%s\"\n", timestamp(), m_pPlayer->GetName().c_str(), text);
+		CHAT_LOG << m_pPlayer->GetName().c_str() << "says (vassals)," << text;
 		break;
 
 	case Covassals_ChannelID:
 		g_pAllegianceManager->ChatCovassals(m_pPlayer->GetID(), text);
-		LOG(Client, Normal, "[%s] %s says (covassals), \"%s\"\n", timestamp(), m_pPlayer->GetName().c_str(), text);
+		CHAT_LOG << m_pPlayer->GetName().c_str() << "says (covassals)," << text;
 		break;
 
 	case Monarch_ChannelID:
 		g_pAllegianceManager->ChatMonarch(m_pPlayer->GetID(), text);
-		LOG(Client, Normal, "[%s] %s says (monarch), \"%s\"\n", timestamp(), m_pPlayer->GetName().c_str(), text);
+		CHAT_LOG << m_pPlayer->GetName().c_str() << "says (monarch)," << text;
 		break;
 	}
 }
@@ -1686,7 +1790,7 @@ void CClientEvents::SpendSkillCredits(STypeSkill key, DWORD credits)
 
 	if (m_pPlayer->GetCostToRaiseSkill(key) != credits)
 	{
-		LOG(Temp, Warning, "Credit cost to raise skill does not match what player is trying to spend.\n");
+		SERVER_WARN << m_pPlayer->GetName() << "- Credit cost to raise skill does not match what player is trying to spend.";
 		return;
 	}
 
@@ -3511,7 +3615,7 @@ void CClientEvents::ProcessEvent(BinaryReader *pReader)
 				if (pReader->GetLastError())
 					break;
 
-				HouseRent(slumlord, items);
+				//HouseRent(slumlord, items);
 				break;
 			}
 		case 0x0245: //House_AddPermanentGuest 

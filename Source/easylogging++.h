@@ -1,10 +1,3 @@
-#pragma once
-
-//ABSORBED from GDLE2 Team from their Gitlab @ https://gitlab.com/Scribble/gdlenhanced/blob/master/Source/easylogging++.h Created by Mike Rath //
-//Thank you GDLE2 Team, Reefcull Team, HighTide Team, Scribble, Chaos & LikableLime!//
-
-
-
 //
 //  Bismillah ar-Rahmaan ar-Raheem
 //
@@ -22,6 +15,7 @@
 //  http://muflihun.com
 //
 #define ELPP_STL_LOGGING
+#define ELPP_THREAD_SAFE
 
 #ifndef EASYLOGGINGPP_H
 #define EASYLOGGINGPP_H

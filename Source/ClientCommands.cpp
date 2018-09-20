@@ -1342,11 +1342,11 @@ SERVER_COMMAND(kick, "<player name>", "Kicks the specified player.", SENTINEL_AC
 
 	if (pPlayer)
 	{
-		LOG(Command, Normal, "\"%s\" is using the kick command.\n", pPlayer->GetName().c_str());
+		SERVER_INFO << pPlayer->GetName().c_str() << "is using the kick command.";
 	}
 	else
 	{
-		LOG(Command, Normal, "Server is using the kick command.\n");
+		SERVER_INFO << "Server is using the kick command.";
 	}
 
 	CPlayerWeenie *pTarget = g_pWorld->FindPlayer(argv[0]);
@@ -1872,6 +1872,50 @@ CLIENT_COMMAND(setbael, "", "Sets you to be Bael'Zharon.", ADMIN_ACCESS)
 }
 #endif
 
+#ifndef PUBLIC_BUILD
+CLIENT_COMMAND(setplayer, "[wcid]", "Sets your Player Character defaults to that of the given wcid.", ADMIN_ACCESS)
+{
+	if (argc < 1)
+		return true;
+
+	g_pWeenieFactory->ApplyWeenieDefaults(pPlayer, atoi(argv[0]));
+	pPlayer->m_Qualities.SetInt(RADARBLIP_COLOR_INT, 2);
+	pPlayer->m_Qualities.SetInt(PLAYER_KILLER_STATUS_INT, Baelzharon_PKStatus);
+	pPlayer->m_Qualities.SetInt(CONTAINERS_CAPACITY_INT, 7);
+	pPlayer->m_Qualities.SetInt(ITEMS_CAPACITY_INT, 200);
+
+	player_client->GetEvents()->BeginLogout();
+
+	return false;
+}
+#endif
+
+#ifndef PUBLIC_BUILD
+CLIENT_COMMAND(setplayerother, "[wcid]", "Sets another Player Characters defaults to that of the given wcid.", ADMIN_ACCESS)
+{
+	if (argc < 1)
+		return true;
+
+	if (pPlayer->m_LastAssessed)
+	{
+		CWeenieObject *target = g_pWorld->FindObject(pPlayer->m_LastAssessed);
+		
+		if (target)
+		{
+			g_pWeenieFactory->ApplyWeenieDefaults(target, atoi(argv[0]));
+			target->m_Qualities.SetInt(RADARBLIP_COLOR_INT, 2);
+			target->m_Qualities.SetInt(PLAYER_KILLER_STATUS_INT, Baelzharon_PKStatus);
+			target->m_Qualities.SetInt(CONTAINERS_CAPACITY_INT, 7);
+			target->m_Qualities.SetInt(ITEMS_CAPACITY_INT, 200);
+			target->SendText("You Have Been Morphed Successfully. Please Re-log", LTT_DEFAULT);
+			pPlayer->SendText("Target Has Morphed Successfully.", LTT_DEFAULT);
+		}
+	}
+
+	return false;
+}
+#endif
+
 CLIENT_COMMAND(setname, "[name]", "Changes the last assessed target's name.", ADMIN_ACCESS)
 {
 	if (argc < 1)
@@ -1991,6 +2035,82 @@ void SendDungeonInfo(CPlayerWeenie* pPlayer, WORD wBlockID)
 	}
 	else
 		SendDungeonInfo(pPlayer, pInfo);
+}
+
+CLIENT_COMMAND(exportrecipe, "<recipeid>", "Export recipe number", ADMIN_ACCESS)
+{
+	if (argc < 1)
+	{
+		pPlayer->SendText("No recipe ID given", LTT_DEFAULT);
+		return true;
+	}
+
+	DWORD recipeId = stoi(argv[0], NULL, 10);
+
+	// Get CCraftOperation that aligns with recipeid
+	CCraftOperation *craft = g_pPortalDataEx->_craftTableData._operations.lookup(recipeId);
+
+	if (!craft)
+	{
+		pPlayer->SendText(csprintf("Unable to find recipe ID: %s.", recipeId), LTT_DEFAULT);
+		return true;
+	}
+
+	json recipeData;
+	craft->PackJson(recipeData);
+
+	string dataFile = std::to_string(recipeId) + ".json";
+
+	ofstream ofstream(dataFile);
+	if (!ofstream.bad())
+	{
+		ofstream << recipeData;
+		ofstream.close();
+	}
+
+	pPlayer->SendText("RecipeID saved in recipe folder.", LTT_DEFAULT);
+
+	return true;
+}
+
+
+
+
+CLIENT_COMMAND(importrecipe, "<recipeid>", "Import a recipes", ADMIN_ACCESS)
+{
+	if (argc < 1)
+	{
+		pPlayer->SendText("No recipe ID given", LTT_DEFAULT);
+		return true;
+	}
+
+	DWORD recipeId = stoi(argv[0], NULL, 10);
+
+	// Get CCraftOperation that aligns with recipeid
+	CCraftOperation *craft = g_pPortalDataEx->_craftTableData._operations.lookup(recipeId);
+
+	if (!craft)
+	{
+		pPlayer->SendText(csprintf("Unable to find recipe ID: %s.", recipeId), LTT_DEFAULT);
+		return true;
+	}
+
+	string dataFile = std::to_string(recipeId) + ".json";
+
+	ifstream ifstream(dataFile.c_str());
+	if (ifstream.is_open())
+	{
+		json recipeData;
+		ifstream >> recipeData;
+		ifstream.close();
+
+		CCraftOperation newcraft;
+		newcraft.UnPackJson(recipeData);
+		g_pPortalDataEx->_craftTableData._operations[recipeId] = newcraft;
+	}
+
+	pPlayer->SendText(csprintf("RecipeID %d loaded and updated.", recipeId), LTT_DEFAULT);
+	return false;
 }
 
 CLIENT_COMMAND(dungeon, "<command>", "Dungeon commands.", BASIC_ACCESS)
@@ -2331,9 +2451,15 @@ CLIENT_COMMAND(player, "<command>", "Player commands.", BASIC_ACCESS)
 			if (pPlayer->IsSentinel())
 			{
 				const char *info = csprintf(
-					"Player Info:\nGUID: 0x%08X\nName: %s\nLocation: %08X %.1f %.1f %.1f",
-					pOther->GetID(), pOther->GetName().c_str(), pOther->GetLandcell(),
-					pOther->m_Position.frame.m_origin.x, pOther->m_Position.frame.m_origin.y, pOther->m_Position.frame.m_origin.z);
+					"Player Info:\nGUID: 0x%08X (Account: %s IP: %s)\nName: %s\nLocation: %08X\nX: %.1f\nY: %.1f\nZ: %.1f",
+					pOther->GetID(),
+					pOther->GetClient()->GetAccount(),
+					inet_ntoa(pOther->GetClient()->GetHostAddress()->sin_addr),
+					pOther->GetName().c_str(), 
+					pOther->GetLandcell(),
+					pOther->m_Position.frame.m_origin.x, 
+					pOther->m_Position.frame.m_origin.y, 
+					pOther->m_Position.frame.m_origin.z);
 
 				pPlayer->SendText(info, LTT_DEFAULT);
 			}
@@ -2355,10 +2481,13 @@ CLIENT_COMMAND(player, "<command>", "Player commands.", BASIC_ACCESS)
 
 			if (player_client->GetAccessLevel() >= SENTINEL_ACCESS)
 			{
-				playerList += csprintf("\n%s (Account: %s IP: %s)",
+				playerList += csprintf("\n%s (Account: %s IP: %s)\nX: %.1f\nY: %.1f\nZ: %.1f",
 					entry.second->GetName().c_str(),
 					entry.second->GetClient()->GetAccount(),
-					inet_ntoa(entry.second->GetClient()->GetHostAddress()->sin_addr));
+					inet_ntoa(entry.second->GetClient()->GetHostAddress()->sin_addr),
+					entry.second->m_Position.frame.m_origin.x,
+					entry.second->m_Position.frame.m_origin.y,
+					entry.second->m_Position.frame.m_origin.z);
 			}
 			else
 			{
@@ -2818,6 +2947,36 @@ CLIENT_COMMAND(spawntreasure2, "<tier> <num>", "Spawn treasure of a specific tie
 
 	return false;
 }
+
+CLIENT_COMMAND(spawntreasure3, "<tier> <num> <cat>", "Spawn treasure of a specific tier & category", ADMIN_ACCESS)
+{
+	if (argc < 3)
+		return true;
+
+	int tier = atoi(argv[0]);
+	int num = atoi(argv[1]);
+	int cat = atoi(argv[2]);
+	for (int i = 0; i < num; i++)
+	{
+		CWeenieObject *treasure = g_pTreasureFactory->GenerateTreasure((tier), (eTreasureCategory)cat);
+		//CWeenieObject *treasure = g_pTreasureFactory->GenerateTreasure(atoi(argv[0]), eTreasureCategory::TreasureCategory_Armor);
+
+		if (treasure)
+		{
+			treasure->SetInitialPosition(pPlayer->m_Position.add_offset(Vector(Random::GenFloat(-2.0, 2.0), Random::GenFloat(-2.0, 2.0), 1.0)));
+
+			if (!g_pWorld->CreateEntity(treasure))
+			{
+				delete treasure;
+				return false;
+			}
+		}
+		else
+			continue;
+	}
+	return false;
+}
+
 CLIENT_COMMAND(spawnsalvage, "<material> <amount> <workmanship> [numItems] [value]", "Spawn bag of salvage", ADMIN_ACCESS)
 {
 	if (argc < 3)
@@ -3450,6 +3609,7 @@ CLIENT_COMMAND(barber, "", "", ADMIN_ACCESS)
 
 CLIENT_COMMAND(spawnfollow, "", "", ADMIN_ACCESS)
 {
+	
 	if (!pPlayer->m_dwLastSpawnedCreatureID)
 		return false;
 
@@ -3458,11 +3618,28 @@ CLIENT_COMMAND(spawnfollow, "", "", ADMIN_ACCESS)
 		return false;
 
 	MovementParameters params;
-	params.can_charge = 1;
+	params.sticky = 1,
+	params.autonomous = 1;
+	
 
 	// params.desired_heading = fmod(pObject->m_Position.frame.get_heading() + 90.0, 360.0);
 	pObject->MoveToObject(pPlayer->GetID(), &params);
-	return true;
+
+	pObject->m_Qualities.SetInt(LEVEL_INT, 50);
+	pObject->m_Qualities.SetAttribute(STRENGTH_ATTRIBUTE, 100);
+	pObject->m_Qualities.SetAttribute(ENDURANCE_ATTRIBUTE, 100);
+	pObject->m_Qualities.SetAttribute(COORDINATION_ATTRIBUTE, 100);
+	pObject->m_Qualities.SetAttribute(QUICKNESS_ATTRIBUTE, 100);
+	pObject->m_Qualities.SetAttribute(FOCUS_ATTRIBUTE, 100);
+	pObject->m_Qualities.SetAttribute(SELF_ATTRIBUTE, 100);
+	pObject->m_Qualities.SetAttribute2nd(MAX_HEALTH_ATTRIBUTE_2ND, 120);
+	pObject->SetMaxVitals();
+	pObject->EmitEffect(138, 1.0f);
+
+
+
+
+
 }
 
 CLIENT_COMMAND(spawnfollow2, "", "", ADMIN_ACCESS)
@@ -4302,7 +4479,7 @@ bool CommandBase::Execute(char *command, CClient *client)
 			{
 				if (!pCommand->source || player_weenie)
 				{
-					LOG(Temp, Normal, "EXECUTING CLIENT COMMAND %s FROM %s\n", command, client->GetDescription());
+					SERVER_INFO << "EXECUTING CLIENT COMMAND" << command << "FROM" << client->GetDescription();
 
 					// run the command callback
 					if ((*pCommand->func)(client, player_weenie, player_physobj, argv + 1, argc - 1))

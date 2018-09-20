@@ -216,6 +216,13 @@ CContainerWeenie *CMonsterWeenie::FindValidNearbyContainer(DWORD containerId, fl
 		{
 			// maybe it's on the ground
 			CWeenieObject *object = g_pWorld->FindObject(containerId);
+
+			if (!object)
+			{
+				NotifyInventoryFailedEvent(containerId, WERROR_OBJECT_GONE);
+				return NULL;
+			}
+
 			container = object->AsContainer();
 
 			if (!container || container->HasOwner() || !container->InValidCell())
@@ -243,7 +250,7 @@ CContainerWeenie *CMonsterWeenie::FindValidNearbyContainer(DWORD containerId, fl
 
 bool CMonsterWeenie::GetEquipPlacementAndHoldLocation(CWeenieObject *item, DWORD location, DWORD *pPlacementFrame, DWORD *pHoldLocation)
 {
-	if (location & MELEE_WEAPON_LOC)
+	if (location & (MELEE_WEAPON_LOC | TWO_HANDED_LOC))
 	{
 		*pPlacementFrame = Placement::RightHandCombat;
 		*pHoldLocation = PARENT_RIGHT_HAND;
@@ -330,14 +337,14 @@ int CMonsterWeenie::CheckWieldRequirements(CWeenieObject *item, CWeenieObject *w
 	{
 		DWORD skillLevel = 0;
 		if (!wielder->m_Qualities.InqSkill((STypeSkill)skillType, skillLevel, FALSE) || (int)skillLevel < wieldDifficulty)
-			return WERROR_ACTIVATION_SKILL_TOO_LOW;
+			return WERROR_SKILL_TOO_LOW;
 		break;
 	}
 	case 2: // base skill
 	{
 		DWORD skillLevel = 0;
 		if (!wielder->m_Qualities.InqSkill((STypeSkill)skillType, skillLevel, TRUE) || (int)skillLevel < wieldDifficulty)
-			return WERROR_ACTIVATION_SKILL_TOO_LOW;
+			return WERROR_SKILL_TOO_LOW;
 		break;
 	}
 	case 3: // attribute
@@ -469,8 +476,8 @@ void CMonsterWeenie::FinishMoveItemToContainer(CWeenieObject *sourceItem, CConta
 
 	//if (!sourceItem->HasOwner())
 	//{
-		if (CWeenieObject *generator = g_pWorld->FindObject(sourceItem->InqIIDQuality(GENERATOR_IID, 0)))
-			generator->NotifyGeneratedPickedUp(sourceItem);
+	if (CWeenieObject *generator = g_pWorld->FindObject(sourceItem->InqIIDQuality(GENERATOR_IID, 0)))
+		generator->NotifyGeneratedPickedUp(sourceItem);
 	//}
 
 	// Take it out of whatever slot it's in.
@@ -601,7 +608,7 @@ void CMonsterWeenie::FinishMoveItemTo3D(CWeenieObject *sourceItem)
 	if (bWasWielded && get_minterp()->InqStyle() != Motion_NonCombat)
 		AdjustToNewCombatMode();
 
-	if(bWasWielded)
+	if (bWasWielded)
 		sourceItem->OnUnwield(this);
 	sourceItem->OnDropped(this);
 }
@@ -687,7 +694,13 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 		return false;
 	}
 
-<<<<<<< HEAD
+	if (sourceItem->InqIIDQuality(ALLOWED_WIELDER_IID, 0) && sourceItem->InqIIDQuality(ALLOWED_WIELDER_IID, 0) != GetID())
+	{
+		NotifyInventoryFailedEvent(sourceItem->GetID(), WERROR_ATTUNED_ITEM);
+		return false;
+	}
+
+
 	if (sourceItem->InqIntQuality(ITEM_TYPE_INT, 0) == TYPE_ARMOR && sourceItem->InqIntQuality(LOCATIONS_INT, 0) == SHIELD_LOC)
 	{
 		sourceItem->m_Qualities.SetInt(SHIELD_VALUE_INT, sourceItem->InqIntQuality(ARMOR_LEVEL_INT, 0));
@@ -701,7 +714,6 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 		sourceItem->m_Qualities.SetFloat(SLAYER_DAMAGE_BONUS_FLOAT, 1.4);
 	}
 
-<<<<<<< HEAD
 	//Spadone Fix
 	DWORD spadonePhysical;
 	DWORD spadoneElectric;
@@ -822,14 +834,14 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	DWORD compoundBowFlame;
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, compoundBow) && compoundBow == 0x0200144E)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AC);//Compound Bow Icon//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AC);//Compound Bow Icon//
 		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x01000062D);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Compound Bow");//Re-Write the name to match Item//
 
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, compoundBowSlash) && compoundBowSlash == 0x02001488)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AC);//Compound Bow Icon//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AC);//Compound Bow Icon//
 		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x01000062D);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Slicing Compound Bow");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_SLASHING);//Elemental UI Effect//
@@ -839,7 +851,7 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, compoundBowPierce) && compoundBowPierce == 0x0200148A)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AD);//Compound Bow Icon//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AD);//Compound Bow Icon//
 		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x01000062D);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Piercing Compound Bow");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_PIERCING);//Elemental UI Effect//
@@ -849,7 +861,7 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, compoundBowBludge) && compoundBowBludge == 0x02001489)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060B1);//Compound Bow Icon//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060B1);//Compound Bow Icon//
 		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x01000062D);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Smashing Compound Bow");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_BLUDGEONING);//Elemental UI Effect//
@@ -858,7 +870,7 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, compoundBowAcid) && compoundBowAcid == 0x02001475)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AE);//Compound Bow Icon//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AE);//Compound Bow Icon//
 		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x01000062D);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Corrosive Compound Bow");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_ACID);//Elemental UI Effect//
@@ -867,7 +879,7 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, compoundBowElectric) && compoundBowElectric == 0x02001472)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AF);//Compound Bow Icon//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AF);//Compound Bow Icon//
 		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x01000062D);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Sparking Compound Bow");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_LIGHTNING);//Elemental UI Effect//
@@ -876,7 +888,7 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, compoundBowFrost) && compoundBowFrost == 0x02001473)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AA);//Compound Bow Icon//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AA);//Compound Bow Icon//
 		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x01000062D);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Chilling Compound Bow");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FROST);//Elemental UI Effect//
@@ -885,7 +897,7 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, compoundBowFlame) && compoundBowFlame == 0x02001474)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060B0);//Compound Bow Icon//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060B0);//Compound Bow Icon//
 		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x01000062D);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Searing Compound Bow");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FIRE);//Elemental UI Effect//
@@ -903,8 +915,8 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	DWORD yumiFlame;
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, yumiSlash) && yumiSlash == 33559028)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AC);//Compound Bow Icon//
-		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 0x0060060AC);//Compound Bow Icon//
+		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Slicing Yumi");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_SLASHING);//Elemental UI Effect//
 		sourceItem->m_Qualities.SetInt(DAMAGE_TYPE_INT, SLASH_DAMAGE_TYPE);
@@ -913,8 +925,8 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, yumiPierce) && yumiPierce == 33559027)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 100677125);//Compound Bow Icon//
-		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 100677125);//Compound Bow Icon//
+		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Piercing Yumi");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_PIERCING);//Elemental UI Effect//
 		sourceItem->m_Qualities.SetInt(DAMAGE_TYPE_INT, PIERCE_DAMAGE_TYPE);
@@ -923,8 +935,8 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, yumiBludge) && yumiBludge == 33559030)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 100677123);//Compound Bow Icon//
-		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 100677123);//Compound Bow Icon//
+		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Smashing Yumi");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_BLUDGEONING);//Elemental UI Effect//
 		sourceItem->m_Qualities.SetInt(DAMAGE_TYPE_INT, BLUDGEON_DAMAGE_TYPE);
@@ -932,8 +944,8 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, yumiAcid) && yumiAcid == 33559029)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 100677121);//Compound Bow Icon//
-		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 100677121);//Compound Bow Icon//
+		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Stinging Yumi");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_ACID);//Elemental UI Effect//
 		sourceItem->m_Qualities.SetInt(DAMAGE_TYPE_INT, ACID_DAMAGE_TYPE);
@@ -941,8 +953,8 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, yumiElectric) && yumiElectric == 33559031)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 100677118);//Compound Bow Icon//
-		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 100677118);//Compound Bow Icon//
+		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Sparking Yumi");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_LIGHTNING);//Elemental UI Effect//
 		sourceItem->m_Qualities.SetInt(DAMAGE_TYPE_INT, ELECTRIC_DAMAGE_TYPE);
@@ -950,8 +962,8 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, yumiFrost) && yumiFrost == 33559026)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 100677119);//Compound Bow Icon//
-		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 100677119);//Compound Bow Icon//
+		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Freezing Yumi");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FROST);//Elemental UI Effect//
 		sourceItem->m_Qualities.SetInt(DAMAGE_TYPE_INT, COLD_DAMAGE_TYPE);
@@ -959,8 +971,8 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 	}
 	if (sourceItem->m_Qualities.InqDataID(SETUP_DID, yumiFlame) && yumiFlame == 33559025)
 	{
-		sourceItem->m_Qualities.SetDataID(ICON_DID, 100677122);//Compound Bow Icon//
-		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 10000589);//Compound Bow Pallete//
+		//sourceItem->m_Qualities.SetDataID(ICON_DID, 100677122);//Compound Bow Icon//
+		sourceItem->m_Qualities.SetDataID(PALETTE_BASE_DID, 0x09898CD);//Compound Bow Pallete//
 		sourceItem->m_Qualities.SetString(NAME_STRING, "Smoldering Yumi");//Re-Write the name to match Item//
 		sourceItem->m_Qualities.SetInt(UI_EFFECTS_INT, UI_EFFECT_FIRE);//Elemental UI Effect//
 		sourceItem->m_Qualities.SetInt(DAMAGE_TYPE_INT, FIRE_DAMAGE_TYPE);
@@ -969,14 +981,10 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 
 
 
-=======
->>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
-=======
->>>>>>> parent of 9df554b... Merged in GDLE !movetome cmd and GDLE Recipe tools, also added new Launcher ICON created by Hotdog
 	//if (!sourceItem->HasOwner())
 	//{
-		if (CWeenieObject *generator = g_pWorld->FindObject(sourceItem->InqIIDQuality(GENERATOR_IID, 0)))
-			generator->NotifyGeneratedPickedUp(sourceItem);
+	if (CWeenieObject *generator = g_pWorld->FindObject(sourceItem->InqIIDQuality(GENERATOR_IID, 0)))
+		generator->NotifyGeneratedPickedUp(sourceItem);
 	//}
 
 	DWORD cell_id = m_Position.objcell_id;
@@ -1050,9 +1058,11 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 		{
 			difficulty = 0;
 			DWORD skillActivationTypeDID = 0;
+
+
 			if (sourceItem->m_Qualities.InqInt(ITEM_SKILL_LEVEL_LIMIT_INT, difficulty, TRUE, FALSE) && sourceItem->m_Qualities.InqDataID(ITEM_SKILL_LIMIT_DID, skillActivationTypeDID))
 			{
-				STypeSkill skillActivationType = (STypeSkill)skillActivationTypeDID;
+				STypeSkill skillActivationType = SkillTable::OldToNewSkill((STypeSkill)skillActivationTypeDID);
 
 				DWORD skillLevel = 0;
 				if (!m_Qualities.InqSkill(skillActivationType, skillLevel, FALSE) || (int)skillLevel < difficulty)
@@ -1100,14 +1110,18 @@ bool CMonsterWeenie::FinishMoveItemToWield(CWeenieObject *sourceItem, DWORD targ
 			serial |= ((DWORD)GetEnchantmentSerialByteForMask(sourceItem->InqIntQuality(LOCATIONS_INT, 0, TRUE)) << (DWORD)0);
 			serial |= ((DWORD)GetEnchantmentSerialByteForMask(sourceItem->InqIntQuality(CLOTHING_PRIORITY_INT, 0, TRUE)) << (DWORD)8);
 
+			DWORD spellid = sourceItem->InqDIDQuality(PROC_SPELL_DID, 0);
 			for (auto &spellPage : sourceItem->m_Qualities._spell_book->_spellbook)
 			{
-				sourceItem->MakeSpellcastingManager()->CastSpellEquipped(GetID(), spellPage.first, (WORD)serial);
+				//ignore the spell and don't cast if it's the Proc_spell_DID
+				if (spellid != spellPage.first)
+					sourceItem->MakeSpellcastingManager()->CastSpellEquipped(GetID(), spellPage.first, (WORD)serial);
+
 			}
 		}
 	}
 
-	if(isPickup)
+	if (isPickup)
 		sourceItem->OnPickedUp(this);
 	sourceItem->OnWield(this);
 	return true;
@@ -1139,7 +1153,7 @@ bool CMonsterWeenie::MergeItem(DWORD sourceItemId, DWORD targetItemId, DWORD amo
 	{
 		//from ground or other container or to ground or other container.
 		CStackMergeInventoryUseEvent *mergeEvent = new CStackMergeInventoryUseEvent();
-		if(sourceItem->IsContained() || sourceItem->IsWielded())
+		if (sourceItem->IsContained() || sourceItem->IsWielded())
 			mergeEvent->_target_id = targetItemId;
 		else
 			mergeEvent->_target_id = sourceItemId;
@@ -1447,6 +1461,20 @@ bool CMonsterWeenie::SplitItemToWield(DWORD sourceItemId, DWORD targetLoc, DWORD
 
 void CMonsterWeenie::GiveItem(DWORD targetContainerId, DWORD sourceItemId, DWORD transferAmount)
 {
+
+	if (sourceItemId == id)
+	{
+		NotifyInventoryFailedEvent(sourceItemId, WERROR_NONE);
+		return;
+	}
+
+	if (IsExecutingEmote())
+	{
+		SendText(csprintf("%s is busy.", GetName().c_str()), LTT_DEFAULT);
+		NotifyInventoryFailedEvent(sourceItemId, WERROR_GIVE_NOT_ALLOWED);
+		return;
+	}
+
 	if (IsBusyOrInAction())
 	{
 		NotifyInventoryFailedEvent(sourceItemId, WERROR_ACTIONS_LOCKED);
@@ -1454,7 +1482,7 @@ void CMonsterWeenie::GiveItem(DWORD targetContainerId, DWORD sourceItemId, DWORD
 	}
 
 	CWeenieObject *target = g_pWorld->FindObject(targetContainerId);
-	CWeenieObject *sourceItem = FindContainedItem(sourceItemId);
+	CWeenieObject *sourceItem = g_pWorld->FindObject(sourceItemId);
 
 	if (!sourceItem || !target)
 	{
@@ -1488,6 +1516,7 @@ void CMonsterWeenie::GiveItem(DWORD targetContainerId, DWORD sourceItemId, DWORD
 
 	FinishGiveItem(target->AsContainer(), sourceItem, transferAmount);
 }
+
 
 void CMonsterWeenie::FinishGiveItem(CContainerWeenie *targetContainer, CWeenieObject *sourceItem, DWORD amountToTransfer)
 {
@@ -1631,15 +1660,13 @@ void CMonsterWeenie::OnTookDamage(DamageEventData &damageData)
 {
 	CWeenieObject::OnTookDamage(damageData);
 
-	//if (IsDead())
-	//	return;
-
 	if (m_MonsterAI)
 		m_MonsterAI->OnTookDamage(damageData);
 }
+
 void CMonsterWeenie::UpdateDamageList(DamageEventData &damageData)
 {
-	if (damageData.source && damageData.outputDamageFinal > 0)
+	if (damageData.source && damageData.outputDamageFinal > 0 && damageData.damage_type != STAMINA_DAMAGE_TYPE && damageData.damage_type != MANA_DAMAGE_TYPE)
 	{
 		DWORD source = damageData.source->GetID();
 
@@ -1649,6 +1676,25 @@ void CMonsterWeenie::UpdateDamageList(DamageEventData &damageData)
 		}
 
 		m_aDamageSources[source] += damageData.outputDamageFinal;
+		m_totalDamageTaken += damageData.outputDamageFinal;
+
+		if (m_highestDamageSource == 0 || m_aDamageSources[source] > m_aDamageSources[m_highestDamageSource])
+		{
+			m_highestDamageSource = source;
+
+			if (monster_brawl && m_MonsterAI && !(InqIntQuality(CREATURE_TYPE_INT, 0) == damageData.source->InqIntQuality(CREATURE_TYPE_INT, 0)))
+			{
+				m_MonsterAI->SetNewTarget(damageData.source);
+				return;
+			}
+
+			if (m_MonsterAI && m_MonsterAI->_toleranceType != TolerateEverything && damageData.source->AsPlayer())  // TODO: maths to determine when to setnewtarget not just per attack as it would allow ping-ponging mobs
+			{
+				m_MonsterAI->m_fAggroTime = Timer::cur_time + 10.0f;
+				m_MonsterAI->SetNewTarget(damageData.source);
+			}
+		}
+
 	}
 }
 
@@ -1665,9 +1711,18 @@ void CMonsterWeenie::OnRegen(STypeAttribute2nd currentAttrib, int newAmount)
 		{
 			// reset damage sources
 			m_aDamageSources.clear();
+			m_highestDamageSource = 0;
+			m_totalDamageTaken = 0;
+
 		}
 	}
 }
+
+void CMonsterWeenie::GivePerksForKill(CWeenieObject *pKilled)
+{
+	// Prevent CWeenieObject::GivePerksForKill from running
+}
+
 
 void CMonsterWeenie::OnIdentifyAttempted(CWeenieObject *other)
 {
@@ -1700,14 +1755,14 @@ void CMonsterWeenie::HandleAggro(CWeenieObject *attacker)
 /*
 CBaelZharon::CBaelZharon()
 {
-	SetName("Bael'Zharon");
-	SetSetupID(0x0200099E);
-	SetScale(1.8f);
+SetName("Bael'Zharon");
+SetSetupID(0x0200099E);
+SetScale(1.8f);
 
-	m_ObjDesc.paletteID = 0x04001071;
-	m_ObjDesc.AddSubpalette(new Subpalette(0x04001072, 0, 0));
+m_ObjDesc.paletteID = 0x04001071;
+m_ObjDesc.AddSubpalette(new Subpalette(0x04001072, 0, 0));
 
-	m_fTickFrequency = -1.0f;
+m_fTickFrequency = -1.0f;
 }
 */
 
@@ -1798,97 +1853,84 @@ void CMonsterWeenie::OnMotionDone(DWORD motion, BOOL success)
 			switch (m_MotionUseData.m_MotionUseType)
 			{
 			case MUT_CONSUME_FOOD:
+			{
+				bool bConsumed = false;
+				MotionUseData useData = m_MotionUseData;
+
+				if (bUseSuccess)
 				{
-					bool bConsumed = false;
-					MotionUseData useData = m_MotionUseData;
+					m_MotionUseData.Reset(); // necessary so this doesn't become infinitely recursive
 
-					if (bUseSuccess)
+					DoForcedStopCompletely();
+
+					CWeenieObject *pItem = FindContainedItem(useData.m_MotionUseTarget);
+
+					if (pItem)
 					{
-						m_MotionUseData.Reset(); // necessary so this doesn't become infinitely recursive
+						ReleaseContainedItemRecursive(pItem);
 
-						DoForcedStopCompletely();
+						bConsumed = true;
 
-						CWeenieObject *pItem = FindContainedItem(useData.m_MotionUseTarget);
+						if (DWORD use_sound_did = pItem->InqDIDQuality(USE_SOUND_DID, 0))
+							EmitSound(use_sound_did, 1.0f);
 
-						if (pItem)
+						DWORD boost_stat = pItem->InqIntQuality(BOOSTER_ENUM_INT, 0);
+						DWORD boost_value = pItem->InqIntQuality(BOOST_VALUE_INT, 0);
+
+						switch (boost_stat)
 						{
-							ReleaseContainedItemRecursive(pItem);
+						case HEALTH_ATTRIBUTE_2ND:
+						case STAMINA_ATTRIBUTE_2ND:
+						case MANA_ATTRIBUTE_2ND:
+						{
+							STypeAttribute2nd maxStatType = (STypeAttribute2nd)(boost_stat - 1);
+							STypeAttribute2nd statType = (STypeAttribute2nd)boost_stat;
 
-							bConsumed = true;
+							DWORD statValue = 0, maxStatValue = 0;
+							m_Qualities.InqAttribute2nd(statType, statValue, FALSE);
+							m_Qualities.InqAttribute2nd(maxStatType, maxStatValue, FALSE);
 
-							if (DWORD use_sound_did = pItem->InqDIDQuality(USE_SOUND_DID, 0))
-								EmitSound(use_sound_did, 1.0f);
+							DWORD newStatValue = min(statValue + boost_value, maxStatValue);
 
-							DWORD boost_stat = pItem->InqIntQuality(BOOSTER_ENUM_INT, 0);
-							DWORD boost_value = pItem->InqIntQuality(BOOST_VALUE_INT, 0);
-
-							switch (boost_stat)
+							int statChange = newStatValue - statValue;
+							if (statChange)
 							{
-<<<<<<< HEAD
 								if (statType == HEALTH_ATTRIBUTE_2ND)
-<<<<<<< HEAD
 								{
 									AdjustHealth(statChange);
 									NotifyAttribute2ndStatUpdated(statType);
 								}
 								else
 								{
-=======
-								{
-									AdjustHealth(statChange);
-									NotifyAttribute2ndStatUpdated(statType);
-								}
-								else
-								{
->>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 									m_Qualities.SetAttribute2nd(statType, newStatValue);
 									NotifyAttribute2ndStatUpdated(statType);
-=======
-							case HEALTH_ATTRIBUTE_2ND:
-							case STAMINA_ATTRIBUTE_2ND:
-							case MANA_ATTRIBUTE_2ND:
-								{
-									STypeAttribute2nd maxStatType = (STypeAttribute2nd)(boost_stat - 1);
-									STypeAttribute2nd statType = (STypeAttribute2nd)boost_stat;
-
-									DWORD statValue = 0, maxStatValue = 0;
-									m_Qualities.InqAttribute2nd(statType, statValue, FALSE);
-									m_Qualities.InqAttribute2nd(maxStatType, maxStatValue, FALSE);
-
-									DWORD newStatValue = min(statValue + boost_value, maxStatValue);
-
-									int statChange = newStatValue - statValue;
-									if (statChange)
-									{
-										m_Qualities.SetAttribute2nd(statType, newStatValue);
-										NotifyAttribute2ndStatUpdated(statType);
-									}
-
-									const char *vitalName = "";
-									switch (boost_stat)
-									{
-									case HEALTH_ATTRIBUTE_2ND: vitalName = "health"; break;
-									case STAMINA_ATTRIBUTE_2ND: vitalName = "stamina"; break;
-									case MANA_ATTRIBUTE_2ND: vitalName = "mana"; break;
-									}
-
-									SendText(csprintf("The %s restores %d points of your %s.", pItem->GetName().c_str(), max(0, statChange), vitalName), LTT_DEFAULT);
-									break;
->>>>>>> parent of 9df554b... Merged in GDLE !movetome cmd and GDLE Recipe tools, also added new Launcher ICON created by Hotdog
 								}
 							}
 
-							NotifyContainedItemRemoved(pItem->id);
+							const char *vitalName = "";
+							switch (boost_stat)
+							{
+							case HEALTH_ATTRIBUTE_2ND: vitalName = "health"; break;
+							case STAMINA_ATTRIBUTE_2ND: vitalName = "stamina"; break;
+							case MANA_ATTRIBUTE_2ND: vitalName = "mana"; break;
+							}
 
-							pItem->MarkForDestroy();
+							SendText(csprintf("The %s restores %d points of your %s.", pItem->GetName().c_str(), max(0, statChange), vitalName), LTT_DEFAULT);
+							break;
 						}
+						}
+
+						NotifyContainedItemRemoved(pItem->id);
+
+						pItem->MarkForDestroy();
 					}
-
-					if (!bConsumed)
-						NotifyInventoryFailedEvent(useData.m_MotionUseTarget, 0);
-
-					break;
 				}
+
+				if (!bConsumed)
+					NotifyInventoryFailedEvent(useData.m_MotionUseTarget, 0);
+
+				break;
+			}
 			}
 
 			m_MotionUseData.Reset();
@@ -1902,7 +1944,7 @@ CCorpseWeenie *CMonsterWeenie::CreateCorpse(bool visible)
 		return NULL;
 
 	// spawn corpse
-	CCorpseWeenie *pCorpse = (CCorpseWeenie *) g_pWeenieFactory->CreateWeenieByClassID(W_CORPSE_CLASS);
+	CCorpseWeenie *pCorpse = (CCorpseWeenie *)g_pWeenieFactory->CreateWeenieByClassID(W_CORPSE_CLASS);
 
 	pCorpse->CopyDIDStat(SETUP_DID, this);
 	pCorpse->CopyDIDStat(MOTION_TABLE_DID, this);
@@ -1938,7 +1980,11 @@ CCorpseWeenie *CMonsterWeenie::CreateCorpse(bool visible)
 		pCorpse->m_Qualities.SetBool(VISIBILITY_BOOL, false);
 
 	if (!g_pWorld->CreateEntity(pCorpse))
+	{
+		SERVER_ERROR << "Unable to create corpse of" << GetName().c_str() << "at Landblock:" << csprintf("0x%08X", m_Position.objcell_id) <<
+			"(X, Y, Z):" << m_Position.frame.m_origin.x << "," << m_Position.frame.m_origin.y << m_Position.frame.m_origin.z;
 		pCorpse = NULL;
+	}
 
 	m_DeathKillerIDForCorpse = 0;
 	m_DeathKillerNameForCorpse.clear();
@@ -1952,11 +1998,11 @@ void CMonsterWeenie::DropAllLoot(CCorpseWeenie *pCorpse)
 
 void CMonsterWeenie::GenerateDeathLoot(CCorpseWeenie *pCorpse)
 {
-	if (m_Qualities._create_list)
-		g_pWeenieFactory->AddFromCreateList(pCorpse, m_Qualities._create_list, (DestinationType)(Contain_DestinationType | Treasure_DestinationType));
-
 	if (DWORD deathTreasureType = InqDIDQuality(DEATH_TREASURE_TYPE_DID, 0))
 		g_pWeenieFactory->GenerateFromTypeOrWcid(pCorpse, DestinationType::ContainTreasure_DestinationType, deathTreasureType);
+
+	if (m_Qualities._create_list)
+		g_pWeenieFactory->AddFromCreateList(pCorpse, m_Qualities._create_list, (DestinationType)(Contain_DestinationType | Treasure_DestinationType));
 
 	std::list<CWeenieObject *> removeList;
 
@@ -1991,23 +2037,62 @@ void CMonsterWeenie::OnDeathAnimComplete()
 		if (pCorpse)
 			GenerateDeathLoot(pCorpse);
 	}
-	else if(player->_pendingCorpse)
-	{
-		//make the player corpse visible.
-		player->_pendingCorpse->m_Qualities.RemoveBool(VISIBILITY_BOOL);
-		player->_pendingCorpse->NotifyBoolStatUpdated(VISIBILITY_BOOL, false);
-		player->_pendingCorpse->NotifyObjectCreated(false);
-		player->_pendingCorpse = NULL;
-	}
+
 }
 
 void CMonsterWeenie::OnDeath(DWORD killer_id)
 {
 	CWeenieObject::OnDeath(killer_id);
-	
-	m_DeathKillerIDForCorpse = killer_id;
-	if (!g_pWorld->FindObjectName(killer_id, m_DeathKillerNameForCorpse))
-		m_DeathKillerNameForCorpse.clear();
+
+	if (m_aDamageSources.empty()) // not sure this should ever happen
+	{
+		m_highestDamageSource = killer_id;
+	}
+
+	int level = InqIntQuality(LEVEL_INT, 0);
+
+	int xpForKill = 0;
+
+	if (level <= 0)
+		xpForKill = 0;
+	else if (!m_Qualities.InqInt(XP_OVERRIDE_INT, xpForKill, 0, FALSE))
+		xpForKill = (int)GetXPForKillLevel(level);
+
+	xpForKill = (int)(xpForKill * g_pConfig->KillXPMultiplier(level));
+
+	if (xpForKill > 0)
+	{
+		// hand out xp proportionally
+		for (auto it = m_aDamageSources.begin(); it != m_aDamageSources.end(); ++it)
+		{
+			CWeenieObject *pSource = g_pWorld->FindObject(it->first);
+			double dPercentage = (double)it->second / m_totalDamageTaken;
+
+			if (pSource)
+			{
+				if (pSource->m_Qualities.GetInt(AUGMENTATION_BONUS_XP_INT, 0))
+				{
+					xpForKill *= 1.05;
+				}
+				pSource->GiveSharedXP(dPercentage * xpForKill, false);
+			}
+		}
+	}
+
+
+	m_DeathKillerIDForCorpse = m_highestDamageSource;
+	if (!g_pWorld->FindObjectName(m_highestDamageSource, m_DeathKillerNameForCorpse))
+		m_DeathKillerNameForCorpse = "fate";
+
+	if (m_Qualities._generator_registry)
+	{
+		for each(auto entry in m_Qualities._generator_registry->_registry)
+		{
+			CWeenieObject *weenie = g_pWorld->FindObject(entry.second.m_objectId);
+			weenie->AsMonster()->OnDeath(0);
+		}
+
+	}
 
 	MakeMovementManager(TRUE);
 	StopCompletely(0);
@@ -2016,7 +2101,7 @@ void CMonsterWeenie::OnDeath(DWORD killer_id)
 
 	if (g_pConfig->HardcoreMode() && _IsPlayer())
 	{
-		if (CWeenieObject *pKiller = g_pWorld->FindObject(killer_id))
+		if (CWeenieObject *pKiller = g_pWorld->FindObject(m_highestDamageSource))
 		{
 			if (!g_pConfig->HardcoreModePlayersOnly() || pKiller->_IsPlayer())
 			{
@@ -2079,7 +2164,7 @@ bool CMonsterWeenie::IsDead()
 
 void CMonsterWeenie::ChangeCombatMode(COMBAT_MODE mode, bool playerRequested)
 {
-	COMBAT_MODE newCombatMode = (COMBAT_MODE) InqIntQuality(COMBAT_MODE_INT, COMBAT_MODE::NONCOMBAT_COMBAT_MODE, TRUE);
+	COMBAT_MODE newCombatMode = (COMBAT_MODE)InqIntQuality(COMBAT_MODE_INT, COMBAT_MODE::NONCOMBAT_COMBAT_MODE, TRUE);
 	DWORD new_motion_style = get_minterp()->InqStyle();
 
 	switch (mode)
@@ -2090,22 +2175,33 @@ void CMonsterWeenie::ChangeCombatMode(COMBAT_MODE mode, bool playerRequested)
 		break;
 
 	case MELEE_COMBAT_MODE:
+	{
+		CWeenieObject *weapon = NULL;
+		if (!GetWieldedMelee())
+			weapon = GetWieldedTwoHanded();
+		else {
+			weapon = GetWieldedMelee();
+		}
+		CombatStyle default_combat_style = weapon ? (CombatStyle)weapon->InqIntQuality(DEFAULT_COMBAT_STYLE_INT, Undef_CombatStyle) : Undef_CombatStyle;
+
+		switch (default_combat_style)
 		{
-			CWeenieObject *weapon = GetWieldedMelee();
-
-			CombatStyle default_combat_style = weapon ? (CombatStyle)weapon->InqIntQuality(DEFAULT_COMBAT_STYLE_INT, Undef_CombatStyle) : Undef_CombatStyle;
-
-			switch (default_combat_style)
-			{
-			case Undef_CombatStyle:
-			case Unarmed_CombatStyle:
-				new_motion_style = Motion_HandCombat;
-				newCombatMode = COMBAT_MODE::MELEE_COMBAT_MODE;
-				break;
-
-<<<<<<< HEAD
+		case Undef_CombatStyle:
+		case Unarmed_CombatStyle:
+			new_motion_style = Motion_HandCombat;
 			newCombatMode = COMBAT_MODE::MELEE_COMBAT_MODE;
-<<<<<<< HEAD
+			break;
+
+		case OneHanded_CombatStyle:
+		{
+			new_motion_style = Motion_SwordCombat;
+
+			if (CWeenieObject *shield = GetWieldedShield())
+			{
+				new_motion_style = Motion_SwordShieldCombat;
+			}
+
+			newCombatMode = COMBAT_MODE::MELEE_COMBAT_MODE;
 			break;
 		}
 
@@ -2115,91 +2211,65 @@ void CMonsterWeenie::ChangeCombatMode(COMBAT_MODE mode, bool playerRequested)
 			break;
 		}
 
-=======
-			break;
-		}
-=======
-			case OneHanded_CombatStyle:
-				{
-					new_motion_style = Motion_SwordCombat;
-
-					if (CWeenieObject *shield = GetWieldedShield())
-					{
-						new_motion_style = Motion_SwordShieldCombat;
-					}
-
-					newCombatMode = COMBAT_MODE::MELEE_COMBAT_MODE;
-					break;
-				}
-			}
->>>>>>> parent of 9df554b... Merged in GDLE !movetome cmd and GDLE Recipe tools, also added new Launcher ICON created by Hotdog
-
-			break;
-		}
-
-<<<<<<< HEAD
->>>>>>> 2f8bd4809d60af8a101e26b3a6461c9b99a8e0c7
 		break;
 	}
 
-=======
->>>>>>> parent of 9df554b... Merged in GDLE !movetome cmd and GDLE Recipe tools, also added new Launcher ICON created by Hotdog
 	case MISSILE_COMBAT_MODE:
+	{
+		CWeenieObject *weapon = GetWieldedMissile();
+		CombatStyle default_combat_style = weapon ? (CombatStyle)weapon->InqIntQuality(DEFAULT_COMBAT_STYLE_INT, Undef_CombatStyle) : Undef_CombatStyle;
+
+		switch (default_combat_style)
 		{
-			CWeenieObject *weapon = GetWieldedMissile();
-			CombatStyle default_combat_style = weapon ? (CombatStyle)weapon->InqIntQuality(DEFAULT_COMBAT_STYLE_INT, Undef_CombatStyle) : Undef_CombatStyle;
-
-			switch (default_combat_style)
+		case Bow_CombatStyle:
+			if (CWeenieObject *ammo = GetWieldedAmmo())
 			{
-			case Bow_CombatStyle:
-				if (CWeenieObject *ammo = GetWieldedAmmo())
-				{
-					new_motion_style = Motion_BowCombat;
-					newCombatMode = COMBAT_MODE::MISSILE_COMBAT_MODE;
-				}
-				else
-				{
-					 NotifyWeenieError(WERROR_COMBAT_OUT_OF_AMMO);
-					 new_motion_style = Motion_NonCombat;
-					 newCombatMode = COMBAT_MODE::NONCOMBAT_COMBAT_MODE;
-				}
-				break;
-
-			case Crossbow_CombatStyle:
-				if (CWeenieObject *ammo = GetWieldedAmmo())
-				{
-					new_motion_style = Motion_CrossbowCombat;
-					newCombatMode = COMBAT_MODE::MISSILE_COMBAT_MODE;
-				}
-				else
-				{
-					NotifyWeenieError(WERROR_COMBAT_OUT_OF_AMMO);
-					new_motion_style = Motion_NonCombat;
-					newCombatMode = COMBAT_MODE::NONCOMBAT_COMBAT_MODE;
-				}
-				break;
-
-			case ThrownWeapon_CombatStyle:
-				new_motion_style = Motion_ThrownWeaponCombat;
+				new_motion_style = Motion_BowCombat;
 				newCombatMode = COMBAT_MODE::MISSILE_COMBAT_MODE;
-				break;
+			}
+			else
+			{
+				NotifyWeenieError(WERROR_COMBAT_OUT_OF_AMMO);
+				new_motion_style = Motion_NonCombat;
+				newCombatMode = COMBAT_MODE::NONCOMBAT_COMBAT_MODE;
+			}
+			break;
 
-			case Atlatl_CombatStyle:
-				if (CWeenieObject *ammo = GetWieldedAmmo())
-				{
-					new_motion_style = Motion_AtlatlCombat;
-					newCombatMode = COMBAT_MODE::MISSILE_COMBAT_MODE;
-				}
-				else
-				{
-					NotifyWeenieError(WERROR_COMBAT_OUT_OF_AMMO);
-					new_motion_style = Motion_NonCombat;
-					newCombatMode = COMBAT_MODE::NONCOMBAT_COMBAT_MODE;
-				}
-				break;
+		case Crossbow_CombatStyle:
+			if (CWeenieObject *ammo = GetWieldedAmmo())
+			{
+				new_motion_style = Motion_CrossbowCombat;
+				newCombatMode = COMBAT_MODE::MISSILE_COMBAT_MODE;
+			}
+			else
+			{
+				NotifyWeenieError(WERROR_COMBAT_OUT_OF_AMMO);
+				new_motion_style = Motion_NonCombat;
+				newCombatMode = COMBAT_MODE::NONCOMBAT_COMBAT_MODE;
+			}
+			break;
+
+		case ThrownWeapon_CombatStyle:
+			new_motion_style = Motion_ThrownWeaponCombat;
+			newCombatMode = COMBAT_MODE::MISSILE_COMBAT_MODE;
+			break;
+
+		case Atlatl_CombatStyle:
+			if (CWeenieObject *ammo = GetWieldedAmmo())
+			{
+				new_motion_style = Motion_AtlatlCombat;
+				newCombatMode = COMBAT_MODE::MISSILE_COMBAT_MODE;
+			}
+			else
+			{
+				NotifyWeenieError(WERROR_COMBAT_OUT_OF_AMMO);
+				new_motion_style = Motion_NonCombat;
+				newCombatMode = COMBAT_MODE::NONCOMBAT_COMBAT_MODE;
 			}
 			break;
 		}
+		break;
+	}
 
 	case MAGIC_COMBAT_MODE:
 		new_motion_style = Motion_Magic;
@@ -2244,7 +2314,7 @@ bool CMonsterWeenie::ClothingPrioritySorter(const CWeenieObject *first, const CW
 void CMonsterWeenie::GetObjDesc(ObjDesc &objDesc)
 {
 	std::list<CWeenieObject *> wieldedWearable;
-	Container_GetWieldedByMask(wieldedWearable, ARMOR_LOC|CLOTHING_LOC);
+	Container_GetWieldedByMask(wieldedWearable, ARMOR_LOC | CLOTHING_LOC);
 	for (auto wearable : wieldedWearable)
 	{
 		if (wearable->IsAvatarJumpsuit())
@@ -2256,7 +2326,10 @@ void CMonsterWeenie::GetObjDesc(ObjDesc &objDesc)
 
 	CWeenieObject::GetObjDesc(objDesc);
 
+
 	DWORD head_object_id;
+
+
 	if (m_Qualities.InqDataID(HEAD_OBJECT_DID, head_object_id))
 		objDesc.AddAnimPartChange(new AnimPartChange(16, head_object_id));
 
@@ -2291,47 +2364,47 @@ void CMonsterWeenie::GetObjDesc(ObjDesc &objDesc)
 
 	for (auto clothing : wieldedClothings)
 	{
-		if (clothing->IsHelm())
-		{
-			if (!ShowHelm())
-				continue;
-		}
-		
-		DWORD clothing_table_id = clothing->InqDIDQuality(CLOTHINGBASE_DID, 0);
-		DWORD palette_template_key = clothing->InqIntQuality(PALETTE_TEMPLATE_INT, 0);
+	if (clothing->IsHelm())
+	{
+	if (!ShowHelm())
+	continue;
+	}
 
-		if (clothing_table_id && !clothing->IsAvatarJumpsuit())
-		{
-			ClothingTable *clothingTable = ClothingTable::Get(clothing_table_id);
+	DWORD clothing_table_id = clothing->InqDIDQuality(CLOTHINGBASE_DID, 0);
+	DWORD palette_template_key = clothing->InqIntQuality(PALETTE_TEMPLATE_INT, 0);
 
-			if (clothingTable)
-			{
-				ObjDesc od;
-				ShadePackage shades(clothing->InqFloatQuality(SHADE_FLOAT, 0.0));
+	if (clothing_table_id && !clothing->IsAvatarJumpsuit())
+	{
+	ClothingTable *clothingTable = ClothingTable::Get(clothing_table_id);
 
-				double shadeVal;
-				if (clothing->m_Qualities.InqFloat(SHADE2_FLOAT, shadeVal))
-					shades._val[1] = shadeVal;
-				if (clothing->m_Qualities.InqFloat(SHADE3_FLOAT, shadeVal))
-					shades._val[2] = shadeVal;
-				if (clothing->m_Qualities.InqFloat(SHADE4_FLOAT, shadeVal))
-					shades._val[3] = shadeVal;
+	if (clothingTable)
+	{
+	ObjDesc od;
+	ShadePackage shades(clothing->InqFloatQuality(SHADE_FLOAT, 0.0));
 
-				clothingTable->BuildObjDesc(GetSetupID(), palette_template_key, &shades, &od);
-				objDesc += od;
+	double shadeVal;
+	if (clothing->m_Qualities.InqFloat(SHADE2_FLOAT, shadeVal))
+	shades._val[1] = shadeVal;
+	if (clothing->m_Qualities.InqFloat(SHADE3_FLOAT, shadeVal))
+	shades._val[2] = shadeVal;
+	if (clothing->m_Qualities.InqFloat(SHADE4_FLOAT, shadeVal))
+	shades._val[3] = shadeVal;
 
-				ClothingTable::Release(clothingTable);
-			}
-		}
-		else
-		{
-			objDesc += clothing->m_WornObjDesc;
-		}
+	clothingTable->BuildObjDesc(GetSetupID(), palette_template_key, &shades, &od);
+	objDesc += od;
+
+	ClothingTable::Release(clothingTable);
+	}
+	}
+	else
+	{
+	objDesc += clothing->m_WornObjDesc;
+	}
 	}
 	*/
 
 	std::list<CWeenieObject *> wieldedArmors;
-	Container_GetWieldedByMask(wieldedArmors, CLOTHING_LOC|ARMOR_LOC);
+	Container_GetWieldedByMask(wieldedArmors, CLOTHING_LOC | ARMOR_LOC);
 	wieldedArmors.sort(ClothingPrioritySorter);
 
 	for (auto armor : wieldedArmors)
@@ -2377,6 +2450,12 @@ void CMonsterWeenie::GetObjDesc(ObjDesc &objDesc)
 
 DWORD CMonsterWeenie::OnReceiveInventoryItem(CWeenieObject *source, CWeenieObject *item, DWORD desired_slot)
 {
+	if (GetName() == "Garbage Barrel")
+	{
+		g_pWorld->RemoveEntity(item);
+		return 0;
+	}
+
 	if (source != this)
 	{
 		bool accepted = false;
@@ -2500,12 +2579,12 @@ double CMonsterWeenie::GetMagicDefenseModUsingWielded()
 
 	defenseMod *= CWeenieObject::GetMagicDefenseMod();
 
-	Container_GetWieldedByMask(wielded, ARMOR_LOC);
-	for (auto item : m_Wielded) //check all armor for appropriate imbue effects
+	/*	Container_GetWieldedByMask(wielded, ARMOR_LOC);
+	for (auto item : m_Wielded) //check all armor for appropriate imbue effects - commented out as this is checked in TryMagicResist and should be adding 1 to skill, not 1%
 	{
-		if (item->GetImbueEffects() & MagicDefense_ImbuedEffectType)
-			defenseMod += 0.01;
-	}
+	if (item->GetImbueEffects() & MagicDefense_ImbuedEffectType)
+	defenseMod += 0.01;
+	}*/
 
 	return defenseMod;
 }
@@ -2514,7 +2593,7 @@ int CMonsterWeenie::GetAttackTimeUsingWielded()
 {
 	std::list<CWeenieObject *> wielded;
 	Container_GetWieldedByMask(wielded, WEAPON_LOC);
-	
+
 	for (auto item : wielded)
 	{
 		return item->GetAttackTime();
@@ -2533,7 +2612,7 @@ int CMonsterWeenie::GetAttackTime()
 
 	for (auto item : wielded)
 	{
-		totalTime += item->GetAttackTime();
+	totalTime += item->GetAttackTime();
 	}
 
 	return totalTime;
@@ -2551,7 +2630,7 @@ int CMonsterWeenie::GetAttackDamage()
 
 	for (auto item : wielded)
 	{
-		damage += item->GetAttackDamage();
+	damage += item->GetAttackDamage();
 	}
 	*/
 
@@ -2561,7 +2640,7 @@ int CMonsterWeenie::GetAttackDamage()
 float CMonsterWeenie::GetEffectiveArmorLevel(DamageEventData &damageData, bool bIgnoreMagicArmor)
 {
 	std::list<CWeenieObject *> wielded;
-	Container_GetWieldedByMask(wielded, ARMOR_LOC|CLOTHING_LOC|SHIELD_LOC);
+	Container_GetWieldedByMask(wielded, ARMOR_LOC | CLOTHING_LOC | SHIELD_LOC);
 
 	EnchantedQualityDetails buffDetails;
 
@@ -2580,7 +2659,7 @@ float CMonsterWeenie::GetEffectiveArmorLevel(DamageEventData &damageData, bool b
 	buffDetails.CalculateEnchantedValue();
 
 	if (bIgnoreMagicArmor)
-		return buffDetails.enchantedValue_DecreasingOnly; //debuffs still count
+		return buffDetails.rawValue; //Take the Raw value for Hollows. Debuffs should not count.
 	else
 		return buffDetails.enchantedValue;
 }
@@ -2653,4 +2732,25 @@ BOOL CMonsterWeenie::DoCollision(const class ObjCollisionProfile &prof)
 	}
 
 	return CContainerWeenie::DoCollision(prof);
+}
+
+int CMonsterWeenie::AdjustHealth(int amount)
+{
+	int adjustedAmount = CWeenieObject::AdjustHealth(amount);
+
+	DWORD maxHealth = 0;
+	m_Qualities.InqAttribute2nd(MAX_HEALTH_ATTRIBUTE_2ND, maxHealth, FALSE);
+	DWORD currentHealth = 0;
+	m_Qualities.InqAttribute2nd(HEALTH_ATTRIBUTE_2ND, currentHealth, FALSE);
+
+	if (maxHealth == currentHealth)
+	{
+		// reset damage sources
+		m_aDamageSources.clear();
+		m_highestDamageSource = 0;
+		m_totalDamageTaken = 0;
+
+	}
+
+	return adjustedAmount;
 }
